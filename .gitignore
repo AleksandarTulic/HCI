@@ -4,6 +4,9 @@ obj/
 artifacts/
 publish/
 
+# Claude Code (local settings and permissions)
+.claude/
+
 # IDE
 .vs/
 .vscode/
