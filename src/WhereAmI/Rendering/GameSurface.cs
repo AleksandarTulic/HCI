@@ -25,7 +25,11 @@ public sealed class GameSurface : FrameworkElement
         ClipToBounds = true;
     }
 
-    public GameSession Session { get; set; }
+    /// <summary>The level to draw: the running game, or a level shown behind the menus.</summary>
+    public GameWorld World { get; set; }
+
+    /// <summary>False behind the menus, where the level is only scenery.</summary>
+    public bool ShowPlayer { get; set; } = true;
     public Camera Camera { get; set; }
     public bool ShowHitboxes { get; set; }
 
@@ -35,15 +39,18 @@ public sealed class GameSurface : FrameworkElement
     /// <summary>Left edge of the visible part of the world, in world units.</summary>
     public double CameraX { get; private set; }
 
+    /// <summary>Where a world point appears on this element, in DIPs.</summary>
+    public Point WorldToScreen(double x, double y) => new((x - CameraX) * Scale, y * Scale);
+
     protected override void OnRender(DrawingContext dc)
     {
         dc.DrawRectangle(Brushes.White, null, new Rect(0, 0, ActualWidth, ActualHeight));
 
-        if (Session is null || Camera is null || ActualHeight <= 0)
+        if (World is null || Camera is null || ActualHeight <= 0)
             return;
 
         _sprites ??= new Sprites();
-        var world = Session.World;
+        var world = World;
 
         // The whole level height always fills the window; wider windows simply see more of the level.
         Scale = ActualHeight / world.Level.Height;
@@ -56,14 +63,15 @@ public sealed class GameSurface : FrameworkElement
         var background = SpriteCache.Get(level.Background);
         dc.DrawImage(background, new Rect(0, 0, background.PixelWidth, background.PixelHeight));
 
-        if (level.ShowTutorial)
+        if (level.ShowTutorial && ShowPlayer)
             DrawTutorial(dc);
 
         DrawRewardBoxes(dc, world);
         DrawCoins(dc, world);
         DrawEnemies(dc, world);
         DrawParticles(dc, world, ParticleKind.Dust);
-        DrawPlayer(dc, world.Player);
+        if (ShowPlayer)
+            DrawPlayer(dc, world.Player);
         DrawParticles(dc, world, ParticleKind.Spark);
         DrawEffects(dc, world);
 
@@ -209,7 +217,7 @@ public sealed class GameSurface : FrameworkElement
         DrawHint(dc, _sprites.IconLeft, 128, "Left arrow / A  –  walk left");
         DrawHint(dc, _sprites.IconRight, 192, "Right arrow / D  –  walk right");
         DrawHint(dc, _sprites.IconJump, 256, "Up arrow / W / Space  –  jump");
-        dc.DrawText(Text("M  –  music on/off      Esc  –  quit", 18, TutorialBrush), new Point(20, 316));
+        dc.DrawText(Text("M  –  music on/off      Esc  –  pause", 18, TutorialBrush), new Point(20, 316));
     }
 
     private void DrawHint(DrawingContext dc, ImageSource icon, double y, string text)

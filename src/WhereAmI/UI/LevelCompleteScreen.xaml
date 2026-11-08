@@ -1,0 +1,65 @@
+<ui:Screen x:Class="WhereAmI.UI.LevelCompleteScreen"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:ui="clr-namespace:WhereAmI.UI">
+  <ui:Screen.Resources>
+    <Style x:Key="ResultLabel" TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+      <Setter Property="Foreground" Value="{StaticResource TextDimBrush}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="ResultValue" TargetType="TextBlock" BasedOn="{StaticResource NumberText}">
+      <Setter Property="FontSize" Value="28" />
+      <Setter Property="HorizontalAlignment" Value="Right" />
+    </Style>
+  </ui:Screen.Resources>
+
+  <Grid>
+    <Rectangle Fill="#A60E1116" />
+
+    <Border x:Name="Card" Style="{StaticResource Card}" Width="640" HorizontalAlignment="Center" VerticalAlignment="Center"
+            RenderTransformOrigin="0.5,0.5" Opacity="0">
+      <Border.RenderTransform>
+        <ScaleTransform x:Name="CardScale" ScaleX="0.92" ScaleY="0.92" />
+      </Border.RenderTransform>
+      <StackPanel>
+        <TextBlock Text="LANTERN LIT" Style="{StaticResource LabelText}" Foreground="{StaticResource TealBrush}" HorizontalAlignment="Center" />
+        <TextBlock x:Name="LevelName" Style="{StaticResource HeadingText}" HorizontalAlignment="Center" Margin="0,4,0,18" />
+        <ui:StarRow x:Name="Stars" StarSize="54" HorizontalAlignment="Center" Margin="8,0,0,26" />
+
+        <Grid x:Name="Rows" Margin="10,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="44" />
+            <RowDefinition Height="44" />
+            <RowDefinition Height="44" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="56" />
+          </Grid.RowDefinitions>
+          <TextBlock Text="Coins" Style="{StaticResource ResultLabel}" />
+          <TextBlock x:Name="CoinsValue" Grid.Column="1" Style="{StaticResource ResultValue}" Foreground="{StaticResource AmberSoftBrush}" />
+          <TextBlock Grid.Row="1" Text="Enemies" Style="{StaticResource ResultLabel}" />
+          <TextBlock x:Name="EnemiesValue" Grid.Row="1" Grid.Column="1" Style="{StaticResource ResultValue}" />
+          <TextBlock Grid.Row="2" Text="Time bonus" Style="{StaticResource ResultLabel}" />
+          <TextBlock x:Name="BonusValue" Grid.Row="2" Grid.Column="1" Style="{StaticResource ResultValue}" />
+          <Rectangle Grid.Row="3" Grid.ColumnSpan="2" Height="1" Fill="{StaticResource LineBrush}" Margin="0,8" />
+          <TextBlock Grid.Row="4" Text="Score" Style="{StaticResource ResultLabel}" FontSize="24" Foreground="{StaticResource TextBrush}" />
+          <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Border x:Name="RecordBadge" Background="#265ED6C4" CornerRadius="10" Padding="10,3" Margin="0,0,14,0"
+                    VerticalAlignment="Center" Visibility="Collapsed">
+              <TextBlock Text="NEW BEST" Style="{StaticResource LabelText}" Foreground="{StaticResource TealBrush}" FontSize="13" />
+            </Border>
+            <TextBlock x:Name="ScoreValue" Style="{StaticResource ResultValue}" FontSize="38" Foreground="{StaticResource AmberSoftBrush}" />
+          </StackPanel>
+        </Grid>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="14,30,0,0">
+          <Button x:Name="ContinueButton" Style="{StaticResource PrimaryButton}" Content="Continue" Click="Continue_Click" />
+          <Button Style="{StaticResource SecondaryButton}" Content="Main menu" Click="Menu_Click" Tag="back" />
+        </StackPanel>
+      </StackPanel>
+    </Border>
+  </Grid>
+</ui:Screen>

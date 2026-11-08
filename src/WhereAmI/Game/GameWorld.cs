@@ -47,8 +47,24 @@ public sealed class GameWorld
     /// <summary>Points earned in this world since it was created.</summary>
     public int Points { get; private set; }
 
+    public int CoinsCollected { get; private set; }
+    public int EnemiesDefeated { get; private set; }
+
+    /// <summary>Loose coins plus every coin inside reward boxes.</summary>
+    public int TotalCoins => Level.Coins.Count + Level.RewardBoxes.Sum(b => b.Coins);
+    public int TotalEnemies => Level.Enemies.Count;
+
     public bool IsCompleted { get; private set; }
     public double Time { get; private set; }
+
+    /// <summary>Animates the level without a player, e.g. behind the main menu.</summary>
+    public void UpdateAmbient(double dt)
+    {
+        Time += dt;
+        UpdateEffects(dt);
+        UpdateParticles(dt);
+        UpdateEnemies(dt);
+    }
 
     /// <summary>Returns and clears the events raised since the last call.</summary>
     public IReadOnlyList<GameEvent> DrainEvents()
@@ -56,6 +72,16 @@ public sealed class GameWorld
         var events = _events.ToArray();
         _events.Clear();
         return events;
+    }
+
+    /// <summary>Finishes the level immediately (developer shortcut).</summary>
+    public void DebugComplete()
+    {
+        if (Player.IsDead || IsCompleted)
+            return;
+
+        IsCompleted = true;
+        _events.Add(GameEvent.LevelCompleted);
     }
 
     /// <param name="fell">True when the player fell out of the level; there is nothing left to animate.</param>
@@ -88,6 +114,13 @@ public sealed class GameWorld
             Player.Y += Player.VelocityY * dt;
             return;
         }
+
+        if (input.ConsumePressed(GameAction.DebugCompleteLevel))
+            DebugComplete();
+        if (input.ConsumePressed(GameAction.DebugLoseLife))
+            Kill();
+        if (Player.IsDead || IsCompleted)
+            return;
 
         UpdatePlayer(dt, input);
         CheckInteractions(input);
@@ -264,6 +297,7 @@ public sealed class GameWorld
             {
                 box.CoinsLeft--;
                 Points++;
+                CoinsCollected++;
                 Effects.Add(new Effect(EffectKind.PoppedCoin, b.CenterX - Tuning.CoinSize / 2, b.Top - Tuning.CoinSize, 0.4));
                 SpawnSparks(b.CenterX, b.Top - 8, 8);
                 _events.Add(GameEvent.CoinCollected);
@@ -288,6 +322,7 @@ public sealed class GameWorld
             {
                 coin.Collected = true;
                 Points++;
+                CoinsCollected++;
                 SpawnSparks(coin.Bounds.CenterX, coin.Bounds.CenterY, 10);
                 _events.Add(GameEvent.CoinCollected);
             }
@@ -307,6 +342,7 @@ public sealed class GameWorld
                 p.IsJumping = held;
                 p.Squash = -0.2;
                 Points += enemy.Points;
+                EnemiesDefeated++;
                 Effects.Add(new Effect(EffectKind.ScorePopup, enemy.X, enemy.Y, 0.8, enemy.Points.ToString()));
                 SpawnDust(enemy.Bounds.CenterX, enemy.Bounds.CenterY, 12, 260);
                 _events.Add(GameEvent.EnemyStomped);

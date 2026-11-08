@@ -34,6 +34,10 @@ public sealed class AudioManager
     private readonly Dictionary<Sound, MediaPlayer[]> _voices = new();
     private readonly Dictionary<Sound, int> _nextVoice = new();
 
+    private double _musicVolume = 0.25;
+    private double _effectsVolume = 0.8;
+    private bool _musicDucked;
+
     public AudioManager()
     {
         _music.MediaEnded += (_, _) =>
@@ -48,21 +52,55 @@ public sealed class AudioManager
             var voices = new MediaPlayer[VoicesPerSound];
             for (var i = 0; i < voices.Length; i++)
             {
-                voices[i] = new MediaPlayer { Volume = 0.8 };
+                voices[i] = new MediaPlayer();
                 voices[i].Open(new Uri(AssetPaths.Get(file)));
             }
 
             _voices[sound] = voices;
             _nextVoice[sound] = 0;
         }
+
+        ApplyVolumes();
     }
 
+    public UiSounds Ui { get; } = new();
+
     public bool MusicEnabled { get; private set; } = true;
+
+    public double MusicVolume
+    {
+        get => _musicVolume;
+        set
+        {
+            _musicVolume = Math.Clamp(value, 0, 1);
+            ApplyVolumes();
+        }
+    }
+
+    public double EffectsVolume
+    {
+        get => _effectsVolume;
+        set
+        {
+            _effectsVolume = Math.Clamp(value, 0, 1);
+            ApplyVolumes();
+        }
+    }
+
+    /// <summary>Plays the music quieter, e.g. while the game is paused.</summary>
+    public bool MusicDucked
+    {
+        get => _musicDucked;
+        set
+        {
+            _musicDucked = value;
+            ApplyVolumes();
+        }
+    }
 
     public void StartMusic(string relativePath)
     {
         _music.Open(new Uri(AssetPaths.Get(relativePath)));
-        _music.Volume = 0.5;
         if (MusicEnabled)
             _music.Play();
     }
@@ -86,5 +124,14 @@ public sealed class AudioManager
         voice.Stop();
         voice.Position = TimeSpan.Zero;
         voice.Play();
+    }
+
+    private void ApplyVolumes()
+    {
+        _music.Volume = _musicVolume * (_musicDucked ? 0.35 : 1);
+        foreach (var voices in _voices.Values)
+            foreach (var voice in voices)
+                voice.Volume = _effectsVolume;
+        Ui.Volume = _effectsVolume;
     }
 }

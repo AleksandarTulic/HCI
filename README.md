@@ -29,34 +29,44 @@ dotnet run --project src/WhereAmI
 | Left arrow / A         | Walk left                       |
 | Right arrow / D        | Walk right                      |
 | Up arrow / W / Space   | Jump (hold for a higher jump)   |
-| Space / Enter          | Play again after the game ends  |
+| Esc                    | Pause / back                    |
 | M                      | Music on/off                    |
 | F11 / Alt+Enter        | Fullscreen on/off               |
 | F3                     | Show hitboxes                   |
-| Esc                    | Quit                            |
+
+Menus work with the keyboard (arrows, Enter, Esc) and the mouse.
 
 ## Screen resolution
 
 The game runs at any resolution and aspect ratio. The full height of a level always fills the
-window, and wider screens see more of the level to the sides. The HUD scales with the window.
+window, and wider screens see more of the level to the sides. Menus and the HUD scale with the window.
 
-The game starts fullscreen. To start in a window, optionally with a client size:
+## Settings and progress
+
+Settings (volume, fullscreen, screen shake) and progress (unlocked levels, best scores and stars)
+are saved in `%AppData%\WhereAmI\` as small XML files.
+
+## Command-line options
 
 ```sh
-dotnet run --project src/WhereAmI -- --windowed
-dotnet run --project src/WhereAmI -- --windowed 1280x720
+dotnet run --project src/WhereAmI -- --windowed            # start in a window
+dotnet run --project src/WhereAmI -- --windowed 1280x720   # window with this client size
+dotnet run --project src/WhereAmI -- --no-save             # fresh settings and progress, nothing is saved
 ```
+
+In Debug builds, F8 finishes the current level and F7 loses a life, to test the menus quickly.
 
 ## Project layout
 
 ```
 src/WhereAmI/
-  Core/        Game loop (fixed 120 Hz update) and asset paths
+  Core/        Game loop (fixed 120 Hz update), asset paths, settings and progress
   Game/        Game rules: world, player, enemies, pickups, session (no WPF code)
   Input/       Keyboard to game action mapping
   Levels/      XML level loader
-  Rendering/   Sprite cache, animations and the surface that draws the world
-  Audio/       Music and sound effects
+  Rendering/   Sprite cache, animations, camera and the surface that draws the world
+  Audio/       Music, sound effects and generated menu sounds
+  UI/          Theme, menu screens and HUD
   Assets/      Sprites, backgrounds, audio and levels
 docs/          Screenshots and the level format
 tools/         Developer scripts

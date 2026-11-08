@@ -1,0 +1,374 @@
+<!--
+  Visual theme: "silhouettes and light".
+  Dark, foggy surfaces with warm amber light for anything interactive,
+  cool teal for good news (records, unlocks) and red only for danger.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Colours -->
+  <Color x:Key="InkColor">#0E1116</Color>
+  <Color x:Key="AmberColor">#FFB547</Color>
+  <Color x:Key="AmberSoftColor">#FFD58A</Color>
+  <Color x:Key="TealColor">#5ED6C4</Color>
+
+  <SolidColorBrush x:Key="InkBrush" Color="{StaticResource InkColor}" />
+  <SolidColorBrush x:Key="PanelBrush" Color="#E6141920" />
+  <SolidColorBrush x:Key="PanelLightBrush" Color="#B3141920" />
+  <SolidColorBrush x:Key="LineBrush" Color="#2EFFFFFF" />
+  <SolidColorBrush x:Key="TextBrush" Color="#EDE7DA" />
+  <SolidColorBrush x:Key="TextDimBrush" Color="#9AA3AE" />
+  <SolidColorBrush x:Key="TextFaintBrush" Color="#5C6670" />
+  <SolidColorBrush x:Key="AmberBrush" Color="{StaticResource AmberColor}" />
+  <SolidColorBrush x:Key="AmberSoftBrush" Color="{StaticResource AmberSoftColor}" />
+  <SolidColorBrush x:Key="TealBrush" Color="{StaticResource TealColor}" />
+  <SolidColorBrush x:Key="DangerBrush" Color="#FF5A4E" />
+
+  <!-- Fonts that ship with Windows; each falls back to the next one. -->
+  <FontFamily x:Key="LogoFont">Gabriola, Constantia, Georgia</FontFamily>
+  <FontFamily x:Key="HeadingFont">Constantia, Georgia, Cambria</FontFamily>
+  <FontFamily x:Key="BodyFont">Segoe UI Variable Text, Segoe UI</FontFamily>
+  <FontFamily x:Key="NumberFont">Bahnschrift, Segoe UI</FontFamily>
+
+  <DropShadowEffect x:Key="AmberGlow" Color="{StaticResource AmberColor}" ShadowDepth="0" BlurRadius="24" Opacity="0.85" />
+  <DropShadowEffect x:Key="SoftShadow" Color="Black" ShadowDepth="0" BlurRadius="30" Opacity="0.6" />
+
+  <!-- Text -->
+  <Style x:Key="LogoText" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource LogoFont}" />
+    <Setter Property="FontSize" Value="132" />
+    <Setter Property="Foreground" Value="{StaticResource AmberSoftBrush}" />
+    <Setter Property="Effect" Value="{StaticResource AmberGlow}" />
+  </Style>
+
+  <Style x:Key="HeadingText" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource HeadingFont}" />
+    <Setter Property="FontSize" Value="54" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+  </Style>
+
+  <Style x:Key="SubheadingText" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource HeadingFont}" />
+    <Setter Property="FontStyle" Value="Italic" />
+    <Setter Property="FontSize" Value="24" />
+    <Setter Property="Foreground" Value="{StaticResource TextDimBrush}" />
+  </Style>
+
+  <Style x:Key="BodyText" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
+    <Setter Property="FontSize" Value="20" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+  </Style>
+
+  <Style x:Key="LabelText" TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="Foreground" Value="{StaticResource TextDimBrush}" />
+  </Style>
+
+  <Style x:Key="NumberText" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{StaticResource NumberFont}" />
+    <Setter Property="FontSize" Value="30" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+  </Style>
+
+  <Style x:Key="HintText" TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="Foreground" Value="{StaticResource TextFaintBrush}" />
+  </Style>
+
+  <!-- Panels -->
+  <Style x:Key="Card" TargetType="Border">
+    <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="20" />
+    <Setter Property="Padding" Value="40,32" />
+    <Setter Property="Effect" Value="{StaticResource SoftShadow}" />
+  </Style>
+
+  <Style x:Key="Pill" TargetType="Border">
+    <Setter Property="Background" Value="{StaticResource PanelLightBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="24" />
+    <Setter Property="Padding" Value="18,8" />
+    <Setter Property="Margin" Value="0,0,12,0" />
+  </Style>
+
+  <!--
+    Large menu entry: plain text that lights up amber, slides right and shows a glowing
+    "firefly" when focused or hovered. Keyboard focus and mouse hover look the same.
+  -->
+  <Style x:Key="MenuItemButton" TargetType="Button">
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    <Setter Property="FontFamily" Value="{StaticResource HeadingFont}" />
+    <Setter Property="FontSize" Value="40" />
+    <Setter Property="Margin" Value="0,6" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Grid Background="Transparent">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="36" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Ellipse x:Name="Firefly" Width="12" Height="12" Opacity="0" VerticalAlignment="Center"
+                     HorizontalAlignment="Left" Fill="{StaticResource AmberBrush}" Effect="{StaticResource AmberGlow}" />
+            <ContentPresenter x:Name="Label" Grid.Column="1" VerticalAlignment="Center">
+              <ContentPresenter.RenderTransform>
+                <TranslateTransform x:Name="Slide" />
+              </ContentPresenter.RenderTransform>
+            </ContentPresenter>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="Firefly" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.18" />
+                    <DoubleAnimation Storyboard.TargetName="Slide" Storyboard.TargetProperty="X" To="10" Duration="0:0:0.18">
+                      <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut" /></DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                  </Storyboard>
+                </BeginStoryboard>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="Firefly" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.25" />
+                    <DoubleAnimation Storyboard.TargetName="Slide" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.25" />
+                  </Storyboard>
+                </BeginStoryboard>
+              </Trigger.ExitActions>
+              <Setter Property="Foreground" Value="{StaticResource AmberSoftBrush}" />
+              <Setter TargetName="Label" Property="Effect" Value="{StaticResource AmberGlow}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Foreground" Value="{StaticResource TextFaintBrush}" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Rounded action buttons. Primary glows amber, secondary is an outline. -->
+  <Style x:Key="PrimaryButton" TargetType="Button">
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Foreground" Value="{StaticResource InkBrush}" />
+    <Setter Property="Background" Value="{StaticResource AmberBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource AmberSoftBrush}" />
+    <Setter Property="FontFamily" Value="{StaticResource BodyFont}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="FontSize" Value="20" />
+    <Setter Property="Padding" Value="32,12" />
+    <Setter Property="Margin" Value="0,0,14,0" />
+    <Setter Property="MinWidth" Value="150" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="Body" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="2" CornerRadius="26" Padding="{TemplateBinding Padding}"
+                  RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+              <ScaleTransform x:Name="Grow" />
+            </Border.RenderTransform>
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="Body" Property="Effect" Value="{StaticResource AmberGlow}" />
+              <Trigger.EnterActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="Grow" Storyboard.TargetProperty="ScaleX" To="1.06" Duration="0:0:0.15" />
+                    <DoubleAnimation Storyboard.TargetName="Grow" Storyboard.TargetProperty="ScaleY" To="1.06" Duration="0:0:0.15" />
+                  </Storyboard>
+                </BeginStoryboard>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="Grow" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.2" />
+                    <DoubleAnimation Storyboard.TargetName="Grow" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.2" />
+                  </Storyboard>
+                </BeginStoryboard>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Setter TargetName="Body" Property="Opacity" Value="0.85" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="Body" Property="Opacity" Value="0.3" />
+              <Setter Property="Cursor" Value="Arrow" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+    <Style.Triggers>
+      <Trigger Property="IsKeyboardFocused" Value="True">
+        <Setter Property="BorderBrush" Value="{StaticResource AmberBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource AmberSoftBrush}" />
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+
+  <!-- Volume slider: amber fill that grows from the left, with a glowing knob. -->
+  <Style x:Key="GlowSlider" TargetType="Slider">
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="Minimum" Value="0" />
+    <Setter Property="Maximum" Value="100" />
+    <Setter Property="SmallChange" Value="5" />
+    <Setter Property="LargeChange" Value="10" />
+    <Setter Property="IsMoveToPointEnabled" Value="True" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Height" Value="36" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Slider">
+          <Grid>
+            <Border Height="8" CornerRadius="4" Background="#1FFFFFFF" VerticalAlignment="Center" />
+            <Track x:Name="PART_Track">
+              <Track.DecreaseRepeatButton>
+                <RepeatButton Command="Slider.DecreaseLarge" Focusable="False">
+                  <RepeatButton.Template>
+                    <ControlTemplate TargetType="RepeatButton">
+                      <Border Height="8" CornerRadius="4" Background="{StaticResource AmberBrush}" VerticalAlignment="Center" />
+                    </ControlTemplate>
+                  </RepeatButton.Template>
+                </RepeatButton>
+              </Track.DecreaseRepeatButton>
+              <Track.IncreaseRepeatButton>
+                <RepeatButton Command="Slider.IncreaseLarge" Focusable="False">
+                  <RepeatButton.Template>
+                    <ControlTemplate TargetType="RepeatButton">
+                      <Border Background="Transparent" />
+                    </ControlTemplate>
+                  </RepeatButton.Template>
+                </RepeatButton>
+              </Track.IncreaseRepeatButton>
+              <Track.Thumb>
+                <Thumb>
+                  <Thumb.Template>
+                    <ControlTemplate TargetType="Thumb">
+                      <Ellipse x:Name="Knob" Width="22" Height="22" Fill="{StaticResource AmberSoftBrush}" />
+                    </ControlTemplate>
+                  </Thumb.Template>
+                </Thumb>
+              </Track.Thumb>
+            </Track>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="PART_Track" Property="Effect" Value="{StaticResource AmberGlow}" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- On/off switch built on a CheckBox. -->
+  <Style x:Key="ToggleSwitch" TargetType="CheckBox">
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="CheckBox">
+          <Border x:Name="Track" Width="58" Height="30" CornerRadius="15" Background="#26FFFFFF"
+                  BorderBrush="{StaticResource LineBrush}" BorderThickness="1">
+            <Ellipse x:Name="Knob" Width="22" Height="22" Margin="4,0" HorizontalAlignment="Left"
+                     Fill="{StaticResource TextDimBrush}">
+              <Ellipse.RenderTransform>
+                <TranslateTransform x:Name="KnobSlide" />
+              </Ellipse.RenderTransform>
+            </Ellipse>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Track" Property="Background" Value="{StaticResource AmberBrush}" />
+              <Setter TargetName="Knob" Property="Fill" Value="{StaticResource InkBrush}" />
+              <Trigger.EnterActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="KnobSlide" Storyboard.TargetProperty="X" To="28" Duration="0:0:0.15" />
+                  </Storyboard>
+                </BeginStoryboard>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="KnobSlide" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.15" />
+                  </Storyboard>
+                </BeginStoryboard>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="Track" Property="Effect" Value="{StaticResource AmberGlow}" />
+              <Setter TargetName="Track" Property="BorderBrush" Value="{StaticResource AmberBrush}" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Options tabs: a vertical list of words; the selected one glows. -->
+  <Style x:Key="SideTab" TargetType="RadioButton">
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Foreground" Value="{StaticResource TextDimBrush}" />
+    <Setter Property="FontFamily" Value="{StaticResource HeadingFont}" />
+    <Setter Property="FontSize" Value="26" />
+    <Setter Property="Margin" Value="0,4" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RadioButton">
+          <Border x:Name="Body" CornerRadius="12" Padding="18,8" Background="Transparent">
+            <StackPanel Orientation="Horizontal">
+              <Rectangle x:Name="Marker" Width="4" Height="22" RadiusX="2" RadiusY="2" Margin="0,0,14,0"
+                         Fill="{StaticResource AmberBrush}" Opacity="0" />
+              <ContentPresenter VerticalAlignment="Center" />
+            </StackPanel>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter Property="Foreground" Value="{StaticResource AmberSoftBrush}" />
+              <Setter TargetName="Marker" Property="Opacity" Value="1" />
+              <Setter TargetName="Body" Property="Background" Value="#14FFFFFF" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter Property="Foreground" Value="{StaticResource AmberSoftBrush}" />
+              <Setter TargetName="Body" Property="Background" Value="#1FFFFFFF" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- A single key drawn like a keyboard keycap, used in the controls list. -->
+  <Style x:Key="Keycap" TargetType="Border">
+    <Setter Property="Background" Value="#1AFFFFFF" />
+    <Setter Property="BorderBrush" Value="#40FFFFFF" />
+    <Setter Property="BorderThickness" Value="1,1,1,3" />
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="Padding" Value="10,3" />
+    <Setter Property="Margin" Value="0,0,6,0" />
+    <Setter Property="MinWidth" Value="34" />
+  </Style>
+
+  <!-- Five-pointed star outline; fill it to show an earned star. -->
+  <Geometry x:Key="StarGeometry">M 12,0 L 15.5,8.1 L 24,8.8 L 17.5,14.5 L 19.5,23 L 12,18.5 L 4.5,23 L 6.5,14.5 L 0,8.8 L 8.5,8.1 Z</Geometry>
+</ResourceDictionary>

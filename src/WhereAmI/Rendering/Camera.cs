@@ -29,6 +29,29 @@ public sealed class Camera
     /// <summary>Set to false to disable screen shake (e.g. for players sensitive to motion).</summary>
     public bool ShakeEnabled { get; set; } = true;
 
+    /// <summary>Slowly drifts back and forth across a level, for the scenery behind the menus.</summary>
+    public void UpdateDrift(double dt, GameWorld world)
+    {
+        const double speed = 45;
+        const double margin = 900;
+
+        if (!ReferenceEquals(world, _world))
+        {
+            _world = world;
+            _centerX = margin;
+            _driftDirection = 1;
+        }
+
+        _centerX += _driftDirection * speed * dt;
+        if (_centerX > world.Level.Width - margin || _centerX < margin)
+            _driftDirection = -_driftDirection;
+
+        _trauma = 0;
+        ShakeX = ShakeY = 0;
+    }
+
+    private int _driftDirection = 1;
+
     /// <summary>Adds screen shake; 0.3 is a small bump, 1 is the strongest.</summary>
     public void AddTrauma(double amount) => _trauma = Math.Min(1, _trauma + amount);
 

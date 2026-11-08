@@ -1,0 +1,52 @@
+<ui:Screen x:Class="WhereAmI.UI.PauseScreen"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:ui="clr-namespace:WhereAmI.UI">
+  <Grid>
+    <Rectangle Fill="#660E1116" />
+
+    <!-- Side panel that slides in from the left. -->
+    <Grid x:Name="Panel" HorizontalAlignment="Left" Width="620">
+      <Grid.RenderTransform>
+        <TranslateTransform x:Name="PanelSlide" X="-620" />
+      </Grid.RenderTransform>
+      <Rectangle>
+        <Rectangle.Fill>
+          <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#FA0E1116" Offset="0" />
+            <GradientStop Color="#F20E1116" Offset="0.7" />
+            <GradientStop Color="#000E1116" Offset="1" />
+          </LinearGradientBrush>
+        </Rectangle.Fill>
+      </Rectangle>
+
+      <StackPanel VerticalAlignment="Center" Margin="110,0,0,0">
+        <TextBlock Text="Paused" Style="{StaticResource HeadingText}" FontSize="64" />
+        <TextBlock x:Name="LevelName" Style="{StaticResource SubheadingText}" Margin="2,4,0,0" />
+
+        <!-- How this attempt is going. -->
+        <StackPanel Orientation="Horizontal" Margin="2,30,0,40">
+          <StackPanel Margin="0,0,40,0">
+            <TextBlock Text="COINS" Style="{StaticResource LabelText}" />
+            <TextBlock x:Name="CoinsText" Style="{StaticResource NumberText}" Foreground="{StaticResource AmberSoftBrush}" />
+          </StackPanel>
+          <StackPanel Margin="0,0,40,0">
+            <TextBlock Text="ENEMIES" Style="{StaticResource LabelText}" />
+            <TextBlock x:Name="EnemiesText" Style="{StaticResource NumberText}" />
+          </StackPanel>
+          <StackPanel>
+            <TextBlock Text="TIME LEFT" Style="{StaticResource LabelText}" />
+            <TextBlock x:Name="TimeText" Style="{StaticResource NumberText}" />
+          </StackPanel>
+        </StackPanel>
+
+        <StackPanel Margin="-30,0,0,0" KeyboardNavigation.DirectionalNavigation="Cycle">
+          <Button x:Name="ResumeButton" Style="{StaticResource MenuItemButton}" FontSize="34" Content="Resume" Click="Resume_Click" />
+          <Button Style="{StaticResource MenuItemButton}" FontSize="34" Content="Restart level" Click="Restart_Click" />
+          <Button Style="{StaticResource MenuItemButton}" FontSize="34" Content="Options" Click="Options_Click" />
+          <Button Style="{StaticResource MenuItemButton}" FontSize="34" Content="Main menu" Click="Menu_Click" Tag="back" />
+        </StackPanel>
+      </StackPanel>
+    </Grid>
+  </Grid>
+</ui:Screen>

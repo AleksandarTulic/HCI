@@ -17,6 +17,13 @@ public sealed class KeyboardInput : IInput
         [GameAction.ToggleMusic] = new[] { Key.M },
         [GameAction.ToggleDebug] = new[] { Key.F3 },
         [GameAction.ToggleFullscreen] = new[] { Key.F11 },
+#if DEBUG
+        [GameAction.DebugCompleteLevel] = new[] { Key.F8 },
+        [GameAction.DebugLoseLife] = new[] { Key.F7 },
+#else
+        [GameAction.DebugCompleteLevel] = System.Array.Empty<Key>(),
+        [GameAction.DebugLoseLife] = System.Array.Empty<Key>(),
+#endif
     };
 
     private readonly HashSet<Key> _down = new();

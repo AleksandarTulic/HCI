@@ -4,30 +4,43 @@ using System.Collections.Generic;
 namespace WhereAmI.Core;
 
 /// <summary>
-/// Command-line options.
-/// <c>--windowed 1280x720</c> starts in a window with that client size;
-/// <c>--windowed</c> alone uses a default size. Without options the game starts fullscreen.
+/// Command-line options:
+/// <list type="bullet">
+/// <item><c>--windowed [WxH]</c> start in a window (optionally with that client size) instead of the saved display mode.</item>
+/// <item><c>--no-save</c> start with fresh settings and progress and never write them (useful for testing).</item>
+/// </list>
 /// </summary>
 public sealed class LaunchOptions
 {
-    public bool Fullscreen { get; private init; } = true;
-    public int? WindowWidth { get; private init; }
-    public int? WindowHeight { get; private init; }
+    /// <summary>Null means "use the saved setting".</summary>
+    public bool? Fullscreen { get; private set; }
+    public int? WindowWidth { get; private set; }
+    public int? WindowHeight { get; private set; }
+    public bool NoSave { get; private set; }
 
     public static LaunchOptions Parse(IReadOnlyList<string> args)
     {
+        var options = new LaunchOptions();
+
         for (var i = 0; i < args.Count; i++)
         {
-            if (!args[i].Equals("--windowed", StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            if (i + 1 < args.Count && TryParseSize(args[i + 1], out var w, out var h))
-                return new LaunchOptions { Fullscreen = false, WindowWidth = w, WindowHeight = h };
-
-            return new LaunchOptions { Fullscreen = false };
+            if (args[i].Equals("--no-save", StringComparison.OrdinalIgnoreCase))
+            {
+                options.NoSave = true;
+            }
+            else if (args[i].Equals("--windowed", StringComparison.OrdinalIgnoreCase))
+            {
+                options.Fullscreen = false;
+                if (i + 1 < args.Count && TryParseSize(args[i + 1], out var w, out var h))
+                {
+                    options.WindowWidth = w;
+                    options.WindowHeight = h;
+                    i++;
+                }
+            }
         }
 
-        return new LaunchOptions();
+        return options;
     }
 
     private static bool TryParseSize(string text, out int width, out int height)

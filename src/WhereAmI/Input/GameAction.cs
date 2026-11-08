@@ -10,6 +10,10 @@ public enum GameAction
     ToggleMusic,
     ToggleDebug,
     ToggleFullscreen,
+
+    // Developer shortcuts, only bound in Debug builds.
+    DebugCompleteLevel,
+    DebugLoseLife,
 }
 
 /// <summary>Read-only view of player input used by the game logic.</summary>
