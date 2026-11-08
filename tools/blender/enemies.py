@@ -221,8 +221,10 @@ def frames(scene, folder, count, pose):
 def ember_moth():
     scene = sprite_scene(128, 128, standing=False)
     silhouette_lights(scene, (0, 0), 1.0)
-    body_ink, wing_ink = ink(), ink("WingInk", "#18181B", 0.55)
+    body_ink, wing_ink = ink(), ink("WingInk", "#131315", 0.85)
     belly = soft_glow("Belly", "#FFB547", 1.0, 0.5)
+    # Matte wings: little specular, so they stay dark even when seen edge-on against the rim lights.
+    wing_ink.node_tree.nodes["Principled BSDF"].inputs["Specular IOR Level"].default_value = 0.08
     eye = glow("MothEye", "#E8F1FF", 1.0)
     spot = glow("WingSpot", "#FFB547", 0.6)
 
@@ -532,14 +534,21 @@ def ember():
     body = soft_glow("Body", "#FFB547", 1.3, 0.5)
     hot = soft_glow("Hot", "#FFF0BE", 1.4, 0.65)
 
-    def teardrop(name, width, length, material, x, y):
-        bm = egg_bmesh(width, length)
-        obj = mesh_object(scene, name, bm, material, location=(x, y, 0), rotation=(0, -90, 0))
-        return obj   # the narrow end of the egg points backwards (-X)
+    def teardrop(name, radius, tail, material, x, y):
+        """A ball whose back half is drawn out into a point along -X."""
+        bm = bmesh.new()
+        bmesh.ops.create_uvsphere(bm, u_segments=32, v_segments=16, radius=1)
+        for v in bm.verts:
+            if v.co.x < 0:
+                v.co.y *= 1 + 0.75 * v.co.x
+                v.co.z *= 1 + 0.75 * v.co.x
+                v.co.x *= tail
+            v.co *= radius
+        return mesh_object(scene, name, bm, material, location=(x, y, 0))
 
-    outer = teardrop("Halo", 0.3, 0.48, halo, -0.04, 0.3)
-    middle = teardrop("Body", 0.22, 0.36, body, -0.01, 0.1)
-    teardrop("Hot", 0.13, 0.2, hot, 0.05, -0.1)
+    outer = teardrop("Halo", 0.13, 2.0, halo, 0.04, 0.3)
+    middle = teardrop("Body", 0.1, 2.0, body, 0.06, 0.1)
+    teardrop("Hot", 0.06, 1.6, hot, 0.1, -0.1)
 
     # Flame tongues lick backwards (-X); each frame stretches and sways them differently.
     tongue_mat = soft_glow("Tongue", "#FFA53A", 1.1, 0.4)
@@ -550,9 +559,9 @@ def ember():
     def pose(i, t):
         for k, tongue in enumerate(tongues):
             a = math.radians(angles[k] + 7 * math.sin(2 * math.pi * t + k))
-            length = 0.12 * flicker[i][k]
+            length = 0.09 * flicker[i][k]
             d = Vector((math.cos(a), 0, math.sin(a)))
-            tongue.location = Vector((-0.06, tongue.location.y, 0)) + d * (0.08 + length * 0.5)
+            tongue.location = Vector((-0.04, tongue.location.y, 0)) + d * (0.07 + length * 0.5)
             tongue.rotation_euler = (0, -a, 0)
             tongue.scale = (length, 0.04, 0.032)
         s = 1 + 0.05 * math.sin(2 * math.pi * t * 2)
