@@ -4,7 +4,8 @@
         xmlns:rendering="clr-namespace:WhereAmI.Rendering"
         Title="Where Am I?"
         Width="1280" Height="800"
-        WindowState="Maximized"
+        MinWidth="480" MinHeight="320"
+        WindowStartupLocation="CenterScreen"
         Background="White">
 
   <Window.Resources>
@@ -17,11 +18,11 @@
     </Style>
   </Window.Resources>
 
-  <Grid>
+  <Grid x:Name="Root">
     <rendering:GameSurface x:Name="Surface" />
 
     <!-- HUD: drawn on top of the world and never moves with the camera. -->
-    <StackPanel Orientation="Horizontal" Margin="32,24,0,0"
+    <StackPanel x:Name="HudPanel" Orientation="Horizontal" Margin="32,24,0,0"
                 HorizontalAlignment="Left" VerticalAlignment="Top">
       <Image x:Name="SoundIcon" Width="40" Height="40" Margin="0,0,24,0" Cursor="Hand"
              ToolTip="Music on/off (M)" MouseLeftButtonUp="SoundIcon_Click" />

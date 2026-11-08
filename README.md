@@ -31,8 +31,21 @@ dotnet run --project src/WhereAmI
 | Up arrow / W / Space   | Jump                            |
 | Space / Enter          | Play again after the game ends  |
 | M                      | Music on/off                    |
+| F11 / Alt+Enter        | Fullscreen on/off               |
 | F3                     | Show hitboxes                   |
 | Esc                    | Quit                            |
+
+## Screen resolution
+
+The game runs at any resolution and aspect ratio. The full height of a level always fills the
+window, and wider screens see more of the level to the sides. The HUD scales with the window.
+
+The game starts fullscreen. To start in a window, optionally with a client size:
+
+```sh
+dotnet run --project src/WhereAmI -- --windowed
+dotnet run --project src/WhereAmI -- --windowed 1280x720
+```
 
 ## Project layout
 

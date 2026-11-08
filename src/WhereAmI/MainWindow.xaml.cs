@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using WhereAmI.Audio;
 using WhereAmI.Core;
 using WhereAmI.Game;
@@ -19,6 +20,12 @@ public partial class MainWindow : Window
     private AudioManager _audio;
     private GameSession _session;
 
+    /// <summary>The HUD is designed for a window of at least this size and scaled from there.</summary>
+    private const double UiDesignHeight = 1080;
+    private const double UiDesignMinWidth = 1280;
+
+    private bool _fullscreen;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -26,6 +33,56 @@ public partial class MainWindow : Window
         Loaded += OnLoaded;
         Deactivated += (_, _) => _input.Clear();
         Closed += (_, _) => _loop.Stop();
+        Root.SizeChanged += (_, _) => UpdateUiScale();
+
+        ApplyLaunchOptions(LaunchOptions.Parse(Environment.GetCommandLineArgs()[1..]));
+    }
+
+    private void ApplyLaunchOptions(LaunchOptions options)
+    {
+        if (options.Fullscreen)
+        {
+            SetFullscreen(true);
+            return;
+        }
+
+        if (options.WindowWidth is { } width && options.WindowHeight is { } height)
+        {
+            // Size the window around the requested client area, then let the user resize it freely.
+            Root.Width = width;
+            Root.Height = height;
+            SizeToContent = SizeToContent.WidthAndHeight;
+            ContentRendered += (_, _) =>
+            {
+                SizeToContent = SizeToContent.Manual;
+                Root.Width = double.NaN;
+                Root.Height = double.NaN;
+            };
+        }
+    }
+
+    private void SetFullscreen(bool fullscreen)
+    {
+        _fullscreen = fullscreen;
+
+        // The window has to be restored first, otherwise a maximized borderless
+        // window keeps the old size and the taskbar stays visible.
+        WindowState = WindowState.Normal;
+        WindowStyle = fullscreen ? WindowStyle.None : WindowStyle.SingleBorderWindow;
+        ResizeMode = fullscreen ? ResizeMode.NoResize : ResizeMode.CanResize;
+        WindowState = fullscreen ? WindowState.Maximized : WindowState.Normal;
+    }
+
+    private void UpdateUiScale()
+    {
+        // Follow the height, but shrink further in narrow windows so the HUD always fits.
+        var fit = Math.Min(Root.ActualHeight / UiDesignHeight, Root.ActualWidth / UiDesignMinWidth);
+        var scale = Math.Clamp(fit, 0.4, 3);
+        var transform = new ScaleTransform(scale, scale);
+        transform.Freeze();
+        HudPanel.LayoutTransform = transform;
+        MessagePanel.LayoutTransform = transform;
+        HudPanel.Margin = new Thickness(32 * scale, 24 * scale, 0, 0);
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -51,6 +108,15 @@ public partial class MainWindow : Window
 
     protected override void OnKeyDown(KeyEventArgs e)
     {
+        // Alt+Enter arrives as a "system" key.
+        if (e.Key == Key.System && e.SystemKey == Key.Enter)
+        {
+            if (!e.IsRepeat)
+                SetFullscreen(!_fullscreen);
+            e.Handled = true;
+            return;
+        }
+
         _input.OnKeyDown(e.Key, e.IsRepeat);
         e.Handled = true;
     }
@@ -77,6 +143,9 @@ public partial class MainWindow : Window
 
         if (_input.ConsumePressed(GameAction.ToggleDebug))
             Surface.ShowHitboxes = !Surface.ShowHitboxes;
+
+        if (_input.ConsumePressed(GameAction.ToggleFullscreen))
+            SetFullscreen(!_fullscreen);
 
         _session.Update(dt, _input);
         _input.EndUpdate();

@@ -9,6 +9,7 @@ public enum GameAction
     Quit,
     ToggleMusic,
     ToggleDebug,
+    ToggleFullscreen,
 }
 
 /// <summary>Read-only view of player input used by the game logic.</summary>

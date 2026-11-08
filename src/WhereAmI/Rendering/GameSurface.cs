@@ -26,21 +26,28 @@ public sealed class GameSurface : FrameworkElement
     public GameSession Session { get; set; }
     public bool ShowHitboxes { get; set; }
 
-    /// <summary>Top-left corner of the visible part of the world.</summary>
-    public Point Camera { get; private set; }
+    /// <summary>World units are multiplied by this to get screen units (DIPs).</summary>
+    public double Scale { get; private set; } = 1;
+
+    /// <summary>Left edge of the visible part of the world, in world units.</summary>
+    public double CameraX { get; private set; }
 
     protected override void OnRender(DrawingContext dc)
     {
         dc.DrawRectangle(Brushes.White, null, new Rect(0, 0, ActualWidth, ActualHeight));
 
-        if (Session is null)
+        if (Session is null || ActualHeight <= 0)
             return;
 
         _sprites ??= new Sprites();
         var world = Session.World;
 
-        Camera = FollowPlayer(world);
-        dc.PushTransform(new TranslateTransform(-Camera.X, -Camera.Y));
+        // The whole level height always fills the window; wider windows simply see more of the level.
+        Scale = ActualHeight / world.Level.Height;
+        CameraX = FollowPlayer(world, ActualWidth / Scale);
+
+        dc.PushTransform(new ScaleTransform(Scale, Scale));
+        dc.PushTransform(new TranslateTransform(-CameraX, 0));
 
         var level = world.Level;
         var background = SpriteCache.Get(level.Background);
@@ -59,14 +66,23 @@ public sealed class GameSurface : FrameworkElement
             DrawHitboxes(dc, world);
 
         dc.Pop();
+        dc.Pop();
     }
 
-    private Point FollowPlayer(GameWorld world)
+    /// <summary>Keeps the player centred, without showing anything past the level edges.</summary>
+    private double FollowPlayer(GameWorld world, double visibleWidth)
     {
-        var p = world.Player.Bounds;
-        var x = Math.Clamp(p.CenterX - ActualWidth / 2, 0, Math.Max(0, world.Level.Width - ActualWidth));
-        var y = Math.Clamp(p.CenterY - ActualHeight * 0.55, 0, Math.Max(0, world.Level.Height - ActualHeight));
-        return new Point(Math.Round(x), Math.Round(y));
+        var levelWidth = world.Level.Width;
+
+        // A window wider than the whole level: centre the level instead.
+        if (visibleWidth >= levelWidth)
+            return -(visibleWidth - levelWidth) / 2;
+
+        var x = Math.Clamp(world.Player.Bounds.CenterX - visibleWidth / 2, 0, levelWidth - visibleWidth);
+
+        // Snap to whole device pixels so the background does not shimmer while scrolling.
+        var pixelScale = Scale * VisualTreeHelper.GetDpi(this).DpiScaleX;
+        return Math.Round(x * pixelScale) / pixelScale;
     }
 
     private void DrawPlayer(DrawingContext dc, Player player)

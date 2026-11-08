@@ -16,6 +16,7 @@ public sealed class KeyboardInput : IInput
         [GameAction.Quit] = new[] { Key.Escape },
         [GameAction.ToggleMusic] = new[] { Key.M },
         [GameAction.ToggleDebug] = new[] { Key.F3 },
+        [GameAction.ToggleFullscreen] = new[] { Key.F11 },
     };
 
     private readonly HashSet<Key> _down = new();
