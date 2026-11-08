@@ -10,15 +10,19 @@ and only use fonts that ship with Windows (Gabriola, Constantia).
 blender -b --factory-startup --python tools/blender/parallax.py   # background layers
 blender -b --factory-startup --python tools/blender/props.py      # coin, boxes, gate, lanterns
 blender -b --factory-startup --python tools/blender/branding.py   # icon and banner (needs the layers)
+blender -b --factory-startup --python tools/blender/character.py  # the chicken and its animations
+blender -b --factory-startup --python tools/blender/enemies.py    # moth, owl, burr, toad, egg, ember
 ```
 
 | Script | Output |
 |---|---|
 | `parallax.py` | `Assets/backgrounds/parallax/far.png`, `mid.png`, `near.png`: 2048×1024, tile horizontally. Mountains, a pine forest, bare trees and reeds as silhouettes that fade into fog near the ground. |
 | `props.py` | `Assets/sprites/coin/spin/01..16.png` and `popped.png` (gold coin with a "?"), `reward-box/full.png` and `empty.png`, `goal-gate.png`, `checkpoint/lit.png` and `unlit.png`. |
+| `character.py` | `Assets/sprites/player/<idle, walk, jump, flutter, throw>/NN.png`: the chicken, 128×128 frames. |
+| `enemies.py` | `Assets/sprites/enemies/<moth, owl, burr, toad>/...`, `Assets/sprites/projectiles/egg.png`, `eggshell/`, `ember/`. |
 | `branding.py` | `Assets/icon.png` and `icon.ico` (window and app icon), `docs/images/banner.png`. |
 | `clear_painted_sky.py` | One-off: turned the white sky of the original painted level backgrounds transparent so the parallax layers show behind them. Already applied. |
 
 `common.py` holds the shared scene, camera, light and material helpers.
 
-The player and enemy animations are the original hand-drawn sprites and are not generated here.
+The ghost and the scribble are the original hand-drawn enemy sprites and are not generated here.
