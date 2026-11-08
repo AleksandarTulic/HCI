@@ -22,23 +22,34 @@ stomp on ghosts and avoid spikes. Reach the end of each level before the time ru
 dotnet run --project src/WhereAmI
 ```
 
-## Controls (current)
+## Controls
 
-| Key         | Action             |
-|-------------|--------------------|
-| Left arrow  | Walk left          |
-| Right arrow | Walk right         |
-| Space       | Stop / restart     |
-| Up arrow    | Jump               |
-| Esc         | Quit               |
+| Key                    | Action                          |
+|------------------------|---------------------------------|
+| Left arrow / A         | Walk left                       |
+| Right arrow / D        | Walk right                      |
+| Up arrow / W / Space   | Jump                            |
+| Space / Enter          | Play again after the game ends  |
+| M                      | Music on/off                    |
+| F3                     | Show hitboxes                   |
+| Esc                    | Quit                            |
 
 ## Project layout
 
 ```
-src/WhereAmI/          Game source (WPF, .NET 10)
-src/WhereAmI/Assets/   Sprites, sounds, music and level data
-docs/images/           Screenshots
+src/WhereAmI/
+  Core/        Game loop (fixed 120 Hz update) and asset paths
+  Game/        Game rules: world, player, enemies, pickups, session (no WPF code)
+  Input/       Keyboard to game action mapping
+  Levels/      XML level loader
+  Rendering/   Sprite cache, animations and the surface that draws the world
+  Audio/       Music and sound effects
+  Assets/      Sprites, backgrounds, audio and levels
+docs/          Screenshots and the level format
+tools/         Developer scripts
 ```
+
+Levels are plain XML files, described in [docs/level-format.md](docs/level-format.md).
 
 ## Levels
 
