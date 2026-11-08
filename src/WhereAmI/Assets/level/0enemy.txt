@@ -1,0 +1,9 @@
+500 ghost
+120 ghost
+200 circle
+300 ghost
+300 ghost
+200 ghost
+300 circle
+200 ghost
+200 ghost
