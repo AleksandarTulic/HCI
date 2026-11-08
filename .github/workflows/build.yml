@@ -24,6 +24,6 @@ jobs:
         run: |
           Get-ChildItem src/WhereAmI/Assets/levels/level-*.xml | ForEach-Object {
             [xml]$level = Get-Content $_.FullName -Raw
-            if ($level.DocumentElement.Name -ne 'Level') { throw "$($_.Name): root element must be <Level>" }
+            if ($level.DocumentElement.LocalName -ne 'Level') { throw "$($_.Name): root element must be <Level>" }
             Write-Host "OK $($_.Name): $($level.Level.name)"
           }
