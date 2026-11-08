@@ -1,7 +1,7 @@
 """
 Renders the game icon and the README banner.
 
-* src/WhereAmI/Assets/icon.png and icon.ico  a lit lantern on a dark rounded tile (window and app icon)
+* WhereAmI/Assets/icon.png and icon.ico  a lit lantern on a dark rounded tile (window and app icon)
 * docs/images/banner.png                      the parallax layers, a lantern and the title
 
 Needs the parallax layers from parallax.py. Run:
@@ -170,7 +170,7 @@ def banner():
     ortho_camera(scene, 8, 2.4, 16)
     area_light(scene, "Key", (10, -4, 4), (60, 0, 20), 4, 200)
 
-    layers = os.path.join(ROOT, "src", "WhereAmI", "Assets", "backgrounds", "parallax")
+    layers = os.path.join(ROOT, "WhereAmI", "Assets", "backgrounds", "parallax")
     # The same layers as in the game, dimmed to a night-time fog. Two tiles each, so they cover the width.
     for name, y, x_shift, drop, light in (("far", 3.0, -3.0, 1.2, 0.16), ("mid", 2.0, -6.0, 2.4, 0.11),
                                           ("near", 1.0, -9.5, 3.2, 0.07)):

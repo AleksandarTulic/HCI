@@ -5,7 +5,7 @@ import os
 import bpy
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-ASSETS = os.path.join(ROOT, "src", "WhereAmI", "Assets")
+ASSETS = os.path.join(ROOT, "WhereAmI", "Assets")
 
 
 def asset_path(*parts):

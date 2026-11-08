@@ -58,16 +58,16 @@ Menus work with the arrow keys, Enter and Esc, or with the mouse.
 Requirements: Windows 10 or 11 and the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
 
 ```sh
-dotnet run --project src/WhereAmI
+dotnet run --project WhereAmI
 ```
 
 Useful command-line options:
 
 ```sh
-dotnet run --project src/WhereAmI -- --windowed            # start in a window
-dotnet run --project src/WhereAmI -- --windowed 1280x720   # window with this client size
-dotnet run --project src/WhereAmI -- --level 3             # skip the menus and play level 3
-dotnet run --project src/WhereAmI -- --no-save             # fresh settings and progress, nothing is saved
+dotnet run --project WhereAmI -- --windowed            # start in a window
+dotnet run --project WhereAmI -- --windowed 1280x720   # window with this client size
+dotnet run --project WhereAmI -- --level 3             # skip the menus and play level 3
+dotnet run --project WhereAmI -- --no-save             # fresh settings and progress, nothing is saved
 ```
 
 In Debug builds, F8 finishes the current level and F7 loses a life, to test the menus quickly.
@@ -78,7 +78,7 @@ are written to `crash.log` in the same folder.
 ## Project layout
 
 ```
-src/WhereAmI/
+WhereAmI/      The game (WPF, .NET 10)
   Core/        Game loop (fixed 120 Hz update), asset paths, settings and progress
   Game/        Game rules: world, player, enemies, pickups, session (no WPF code)
   Input/       Keyboard to game action mapping
@@ -95,7 +95,7 @@ tools/
 
 ## Making levels
 
-Levels are plain XML files in `src/WhereAmI/Assets/levels/`. The format is described in
+Levels are plain XML files in `WhereAmI/Assets/levels/`. The format is described in
 [docs/level-format.md](docs/level-format.md). Press **F3** in the game to see every hitbox,
 and start the game with `--level N` to jump straight into the level you are editing.
 

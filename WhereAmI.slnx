@@ -1,5 +1,3 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/WhereAmI/WhereAmI.csproj" />
-  </Folder>
+  <Project Path="WhereAmI/WhereAmI.csproj" />
 </Solution>

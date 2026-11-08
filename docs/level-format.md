@@ -1,6 +1,6 @@
 # Level format
 
-Levels live in `src/WhereAmI/Assets/levels/` as `level-NN.xml`. They are loaded in file-name order,
+Levels live in `WhereAmI/Assets/levels/` as `level-NN.xml`. They are loaded in file-name order,
 so `level-01.xml` is the first level. To add a level, add a new file with the next number.
 
 All positions and sizes are in world units. One unit is one pixel of the background image.
@@ -53,6 +53,6 @@ All positions and sizes are in world units. One unit is one pixel of the backgro
 Losing a life does not reset the level: collected coins, defeated enemies and opened boxes stay that way.
 
 To try a level directly, start the game with `--level N`, for example
-`dotnet run --project src/WhereAmI -- --windowed --level 3`.
+`dotnet run --project WhereAmI -- --windowed --level 3`.
 
 Press **F3** in the game to see every hitbox. That makes it easy to line objects up with the background.

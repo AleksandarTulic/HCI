@@ -119,7 +119,7 @@ function Save-Frames([IntPtr]$window, [string]$sequence) {
 }
 
 $root = Split-Path -Parent $PSScriptRoot
-$exe = if ($Exe) { $Exe } else { Join-Path $root "src/WhereAmI/bin/$Configuration/net10.0-windows/WhereAmI.exe" }
+$exe = if ($Exe) { $Exe } else { Join-Path $root "WhereAmI/bin/$Configuration/net10.0-windows/WhereAmI.exe" }
 if (-not (Test-Path $exe)) { throw "Game not built: $exe" }
 
 # Start from an unrelated directory to prove assets do not depend on the working directory.
