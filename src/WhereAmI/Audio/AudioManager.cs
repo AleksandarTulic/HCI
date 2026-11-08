@@ -34,8 +34,8 @@ public sealed class AudioManager
     private readonly Dictionary<Sound, MediaPlayer[]> _voices = new();
     private readonly Dictionary<Sound, int> _nextVoice = new();
 
-    private double _musicVolume = 0.25;
-    private double _effectsVolume = 0.8;
+    private double _musicVolume = 0.05;
+    private double _effectsVolume = 0.05;
     private bool _musicDucked;
 
     public AudioManager()

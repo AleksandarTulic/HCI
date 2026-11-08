@@ -12,7 +12,7 @@ public sealed class UiSounds
 {
     private const int SampleRate = 44100;
 
-    private double _volume = 0.8;
+    private double _volume = 0.05;
     private SoundPlayer _move;
     private SoundPlayer _select;
     private SoundPlayer _back;

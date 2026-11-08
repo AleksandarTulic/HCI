@@ -11,8 +11,8 @@ namespace WhereAmI.Core;
 /// <summary>Player settings, stored in %AppData%\WhereAmI\settings.xml.</summary>
 public sealed class Settings
 {
-    public double MusicVolume { get; set; } = 0.25;
-    public double EffectsVolume { get; set; } = 0.8;
+    public double MusicVolume { get; set; } = 0.05;
+    public double EffectsVolume { get; set; } = 0.05;
     public bool Fullscreen { get; set; } = true;
     public bool ScreenShake { get; set; } = true;
 }
