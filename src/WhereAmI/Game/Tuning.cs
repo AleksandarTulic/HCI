@@ -32,6 +32,9 @@ public static class Tuning
 
     public const double EnemySpeed = 70;
 
+    public const double CheckpointWidth = 40;
+    public const double CheckpointHeight = 96;
+
     public const double CoinSize = 32;
     public const double RewardBoxSize = 64;
 

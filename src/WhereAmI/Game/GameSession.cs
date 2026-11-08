@@ -65,7 +65,7 @@ public sealed class GameSession
     /// <summary>Set when a level is finished, until the next one starts.</summary>
     public LevelResult LastResult { get; private set; }
 
-    /// <summary>Score so far. Outside of play, an unfinished attempt does not count.</summary>
+    /// <summary>Score so far. After a game over, the unfinished level does not count.</summary>
     public int Points => State == SessionState.Playing ? _pointsAtLevelStart + World.Points : _pointsAtLevelStart;
 
     public bool IsLastLevel => LevelIndex == _levels.Count - 1;
@@ -159,8 +159,11 @@ public sealed class GameSession
 
         if (Lives > 0)
         {
-            // Points earned in a failed attempt are lost, so coins cannot be farmed by dying.
-            StartLevel(LevelIndex, isRespawn: true);
+            // Back to the last checkpoint with a fresh clock. Collected coins stay collected,
+            // so dying cannot be used to collect the same coins twice.
+            World.Respawn();
+            TimeLeft = World.Level.TimeLimit;
+            _respawnTimer = 0;
         }
         else
         {
@@ -169,10 +172,10 @@ public sealed class GameSession
         }
     }
 
-    private void StartLevel(int index, bool isRespawn = false)
+    private void StartLevel(int index)
     {
         LevelIndex = index;
-        World = new GameWorld(_levels[index], isRespawn);
+        World = new GameWorld(_levels[index]);
         TimeLeft = _levels[index].TimeLimit;
         State = SessionState.Playing;
         _respawnTimer = 0;

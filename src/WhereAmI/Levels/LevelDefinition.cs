@@ -7,11 +7,11 @@ namespace WhereAmI.Levels;
 public sealed class LevelDefinition
 {
     public string Name { get; init; }
+    /// <summary>Painted background image, or null to draw the level from its shapes.</summary>
     public string Background { get; init; }
     public double Width { get; init; }
     public double Height { get; init; }
     public double TimeLimit { get; init; }
-    public bool ShowTutorial { get; init; }
     public double PlayerStartX { get; init; }
     public double PlayerStartY { get; init; }
 
@@ -21,4 +21,7 @@ public sealed class LevelDefinition
     public List<(double X, double Y)> Coins { get; } = new();
     public List<(double X, double Y, int Coins, bool Hidden)> RewardBoxes { get; } = new();
     public List<(EnemyKind Kind, double X, double Y, double Range)> Enemies { get; } = new();
+    public List<(Box Bounds, double ToX, double ToY, double Speed)> MovingPlatforms { get; } = new();
+    public List<(double X, double Y)> Checkpoints { get; } = new();
+    public List<(Box Area, string Text)> Hints { get; } = new();
 }

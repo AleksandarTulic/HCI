@@ -1,3 +1,5 @@
+using System;
+
 namespace WhereAmI.Game;
 
 public enum PlayerAnimation
@@ -63,6 +65,65 @@ public sealed class Coin
 
     public Box Bounds { get; }
     public bool Collected { get; set; }
+}
+
+/// <summary>A solid platform that glides back and forth between two points.</summary>
+public sealed class MovingPlatform
+{
+    private readonly double _startX;
+    private readonly double _startY;
+    private readonly double _endX;
+    private readonly double _endY;
+    private readonly double _duration;
+    private double _time;
+
+    public MovingPlatform(Box start, double toX, double toY, double speed)
+    {
+        _startX = start.X;
+        _startY = start.Y;
+        _endX = toX;
+        _endY = toY;
+        Width = start.Width;
+        Height = start.Height;
+        X = start.X;
+        Y = start.Y;
+
+        var distance = Math.Sqrt((toX - start.X) * (toX - start.X) + (toY - start.Y) * (toY - start.Y));
+        _duration = Math.Max(0.1, distance / Math.Max(1, speed));
+    }
+
+    public double X { get; private set; }
+    public double Y { get; private set; }
+    public double Width { get; }
+    public double Height { get; }
+    public Box Bounds => new(X, Y, Width, Height);
+
+    /// <summary>Moves the platform and returns how far it moved.</summary>
+    public (double Dx, double Dy) Advance(double dt)
+    {
+        _time += dt;
+
+        // Smooth ping-pong: slows down near both ends.
+        var phase = _time / _duration % 2;
+        var t = phase < 1 ? phase : 2 - phase;
+        var eased = (1 - Math.Cos(t * Math.PI)) / 2;
+
+        var x = _startX + (_endX - _startX) * eased;
+        var y = _startY + (_endY - _startY) * eased;
+        var delta = (x - X, y - Y);
+        X = x;
+        Y = y;
+        return delta;
+    }
+}
+
+/// <summary>A lantern post. Touching it lights it, and lost lives continue from there.</summary>
+public sealed class Checkpoint
+{
+    public Checkpoint(Box bounds) => Bounds = bounds;
+
+    public Box Bounds { get; }
+    public bool IsLit { get; set; }
 }
 
 public enum EnemyKind

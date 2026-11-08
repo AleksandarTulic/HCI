@@ -12,7 +12,7 @@ public sealed class GameWorld
     private readonly List<GameEvent> _events = new();
     private readonly Random _random = new();
 
-    public GameWorld(LevelDefinition level, bool isRespawn = false)
+    public GameWorld(LevelDefinition level)
     {
         Level = level;
         Ground = level.Ground.ToList();
@@ -25,24 +25,47 @@ public sealed class GameWorld
             .Select(b => new RewardBox(new Box(b.X, b.Y, Tuning.RewardBoxSize, Tuning.RewardBoxSize), b.Coins, b.Hidden))
             .ToList();
         Enemies = level.Enemies.Select(e => new Enemy(e.Kind, e.X, e.Y, e.Range)).ToList();
-        Player = new Player
-        {
-            X = level.PlayerStartX,
-            Y = level.PlayerStartY,
-            Invulnerable = isRespawn ? Tuning.RespawnInvulnerability : 0,
-        };
+        Platforms = level.MovingPlatforms.Select(p => new MovingPlatform(p.Bounds, p.ToX, p.ToY, p.Speed)).ToList();
+        Checkpoints = level.Checkpoints
+            .Select(c => new Checkpoint(new Box(c.X, c.Y, Tuning.CheckpointWidth, Tuning.CheckpointHeight)))
+            .ToList();
+        Hints = level.Hints.ToList();
+        Player = new Player { X = level.PlayerStartX, Y = level.PlayerStartY };
     }
 
     public LevelDefinition Level { get; }
-    public Player Player { get; }
+    public Player Player { get; private set; }
     public IReadOnlyList<Box> Ground { get; }
     public IReadOnlyList<Box> Spikes { get; }
     public IReadOnlyList<Box> Goals { get; }
     public IReadOnlyList<Coin> Coins { get; }
     public IReadOnlyList<RewardBox> RewardBoxes { get; }
     public IReadOnlyList<Enemy> Enemies { get; }
+    public IReadOnlyList<MovingPlatform> Platforms { get; }
+    public IReadOnlyList<Checkpoint> Checkpoints { get; }
+    public IReadOnlyList<(Box Area, string Text)> Hints { get; }
     public List<Effect> Effects { get; } = new();
     public List<Particle> Particles { get; } = new();
+
+    /// <summary>The hint for the area the player is standing in, or null.</summary>
+    public string CurrentHint { get; private set; }
+
+    /// <summary>Where the player comes back after losing a life.</summary>
+    public Checkpoint ActiveCheckpoint { get; private set; }
+
+    /// <summary>
+    /// Brings the player back at the last lit checkpoint (or the start) after losing a life.
+    /// Collected coins and defeated enemies stay that way.
+    /// </summary>
+    public void Respawn()
+    {
+        var (x, y) = ActiveCheckpoint is { } checkpoint
+            ? (checkpoint.Bounds.CenterX - Tuning.PlayerWidth / 2, checkpoint.Bounds.Bottom - Tuning.PlayerHeight)
+            : (Level.PlayerStartX, Level.PlayerStartY);
+
+        Player = new Player { X = x, Y = y, Invulnerable = Tuning.RespawnInvulnerability };
+        CurrentHint = null;
+    }
 
     /// <summary>Points earned in this world since it was created.</summary>
     public int Points { get; private set; }
@@ -64,6 +87,7 @@ public sealed class GameWorld
         UpdateEffects(dt);
         UpdateParticles(dt);
         UpdateEnemies(dt);
+        UpdatePlatforms(dt);
     }
 
     /// <summary>Returns and clears the events raised since the last call.</summary>
@@ -103,6 +127,7 @@ public sealed class GameWorld
         UpdateEffects(dt);
         UpdateParticles(dt);
         UpdateEnemies(dt);
+        UpdatePlatforms(dt);
 
         if (IsCompleted)
             return;
@@ -201,7 +226,9 @@ public sealed class GameWorld
         value < target ? Math.Min(value + maxStep, target) : Math.Max(value - maxStep, target);
 
     private IEnumerable<Box> Solids() =>
-        Ground.Concat(RewardBoxes.Where(b => b.IsRevealed).Select(b => b.Bounds));
+        Ground
+            .Concat(RewardBoxes.Where(b => b.IsRevealed).Select(b => b.Bounds))
+            .Concat(Platforms.Select(p => p.Bounds));
 
     private void MoveHorizontally(double dx)
     {
@@ -360,10 +387,43 @@ public sealed class GameWorld
             return;
         }
 
+        foreach (var checkpoint in Checkpoints)
+        {
+            if (checkpoint.IsLit || !bounds.Overlaps(checkpoint.Bounds))
+                continue;
+
+            checkpoint.IsLit = true;
+            ActiveCheckpoint = checkpoint;
+            SpawnSparks(checkpoint.Bounds.CenterX, checkpoint.Bounds.Top + 12, 16);
+            _events.Add(GameEvent.CheckpointReached);
+        }
+
+        CurrentHint = Hints.FirstOrDefault(h => h.Area.Overlaps(bounds)).Text;
+
         if (Goals.Any(bounds.Overlaps))
         {
             IsCompleted = true;
             _events.Add(GameEvent.LevelCompleted);
+        }
+    }
+
+    /// <summary>Moves platforms and carries a player who stands on one.</summary>
+    private void UpdatePlatforms(double dt)
+    {
+        var p = Player;
+        foreach (var platform in Platforms)
+        {
+            var before = platform.Bounds;
+            var standingOn = !p.IsDead && p.OnGround
+                && Math.Abs(p.Bounds.Bottom - before.Top) < 1
+                && p.Bounds.Right > before.Left && p.Bounds.Left < before.Right;
+
+            var (dx, dy) = platform.Advance(dt);
+            if (standingOn)
+            {
+                p.X = Math.Clamp(p.X + dx, 0, Level.Width - Tuning.PlayerWidth);
+                p.Y += dy;
+            }
         }
     }
 

@@ -39,6 +39,16 @@
       </StackPanel>
     </Border>
 
+    <!-- Contextual hint near the bottom, shown while the player is in a hint area. -->
+    <Border x:Name="HintPill" Style="{StaticResource Pill}" Margin="0" Padding="26,12"
+            HorizontalAlignment="Center" VerticalAlignment="Bottom" Opacity="0" Background="#D9141920">
+      <StackPanel Orientation="Horizontal">
+        <Ellipse Width="10" Height="10" Fill="{StaticResource AmberBrush}" Effect="{StaticResource AmberGlow}"
+                 VerticalAlignment="Center" Margin="0,0,14,0" />
+        <TextBlock x:Name="HintText" Style="{StaticResource BodyText}" FontSize="22" />
+      </StackPanel>
+    </Border>
+
     <!-- Short messages in the middle: level name at the start, "Music off", and so on. -->
     <StackPanel x:Name="Toast" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,120,0,0" Opacity="0">
       <TextBlock x:Name="ToastSmall" Style="{StaticResource LabelText}" HorizontalAlignment="Center" FontSize="18" />

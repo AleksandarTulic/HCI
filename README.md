@@ -3,7 +3,8 @@
 A 2D side-scrolling platformer in a black-and-white silhouette style, written in C# with WPF.
 
 A small dark creature wakes up in a foggy, unfamiliar world. Collect coins, hit the `!` boxes,
-stomp on ghosts and avoid spikes. Reach the end of each level before the time runs out.
+stomp on ghosts, ride floating platforms and avoid thorns. Light lantern checkpoints on the way
+and reach the end of each of the three levels before the time runs out.
 
 > **Status:** being refactored. The game was originally written in 2021 as a learning project
 > for a Human-Computer Interaction course. It is being moved to .NET 10, restructured, and made
@@ -52,6 +53,7 @@ are saved in `%AppData%\WhereAmI\` as small XML files.
 dotnet run --project src/WhereAmI -- --windowed            # start in a window
 dotnet run --project src/WhereAmI -- --windowed 1280x720   # window with this client size
 dotnet run --project src/WhereAmI -- --no-save             # fresh settings and progress, nothing is saved
+dotnet run --project src/WhereAmI -- --level 3             # skip the menus and play level 3
 ```
 
 In Debug builds, F8 finishes the current level and F7 loses a life, to test the menus quickly.

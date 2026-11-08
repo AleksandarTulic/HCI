@@ -109,6 +109,8 @@ public partial class MainWindow : Window
         _audio.StartMusic("audio/music/magic.mp3");
 
         ShowMainMenu();
+        if (_launch.StartLevel is { } startLevel)
+            StartGame(Math.Min(startLevel, _levels.Count - 1));
         _loop.Start();
     }
 
@@ -357,6 +359,11 @@ public partial class MainWindow : Window
         {
             PlaySound(gameEvent);
             ShakeCamera(gameEvent);
+            if (gameEvent == GameEvent.CheckpointReached)
+            {
+                _audio.Ui.Select();
+                Hud.ShowToast("Checkpoint", "LANTERN LIT", 1.8);
+            }
         }
 
         _camera.Update(dt, _session.World);

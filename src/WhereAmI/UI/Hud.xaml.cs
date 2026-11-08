@@ -88,6 +88,18 @@ public partial class Hud : UserControl
             : 1;
         SetScale(ClockPulse, pulse);
 
+        // Hints fade in while the player is inside their area and fade out after leaving.
+        var hint = session.State == SessionState.Playing ? world.CurrentHint : null;
+        if (hint is not null && hint != HintText.Text)
+        {
+            if (HintPill.Opacity < 0.05)
+                HintText.Text = hint;
+            else
+                hint = null;   // fade the old one out first
+        }
+        var hintTarget = hint is not null && hint == HintText.Text ? 1 : 0;
+        HintPill.Opacity += (hintTarget - HintPill.Opacity) * Math.Min(1, dt * 8);
+
         _toastAge += dt;
         var fadeIn = Math.Clamp(_toastAge / 0.3, 0, 1);
         var fadeOut = Math.Clamp((_toastDuration - _toastAge) / 0.6, 0, 1);

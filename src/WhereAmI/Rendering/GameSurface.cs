@@ -12,7 +12,6 @@ public sealed class GameSurface : FrameworkElement
     private const double PlayerSpriteScale = 0.64;   // original frames are ~110 px tall
 
     private static readonly Typeface TextFace = new("Segoe UI");
-    private static readonly Brush TutorialBrush = Freeze(new SolidColorBrush(Color.FromRgb(0x22, 0x22, 0x22)));
     private static readonly Brush ScoreBrush = Freeze(new SolidColorBrush(Color.FromRgb(0xE0, 0x9A, 0x1A)));
     private static readonly Brush DustBrush = Freeze(new SolidColorBrush(Color.FromRgb(0x3A, 0x3A, 0x3A)));
     private static readonly Brush SparkBrush = Freeze(new SolidColorBrush(Color.FromRgb(0xFF, 0xC8, 0x3D)));
@@ -60,11 +59,23 @@ public sealed class GameSurface : FrameworkElement
         dc.PushTransform(new TranslateTransform(-CameraX + Camera.ShakeX, Camera.ShakeY));
 
         var level = world.Level;
-        var background = SpriteCache.Get(level.Background);
-        dc.DrawImage(background, new Rect(0, 0, background.PixelWidth, background.PixelHeight));
+        if (level.Background is { } backgroundPath)
+        {
+            var background = SpriteCache.Get(backgroundPath);
+            dc.DrawImage(background, new Rect(0, 0, background.PixelWidth, background.PixelHeight));
+        }
+        else
+        {
+            ProceduralArt.DrawSky(dc, level);
+            ProceduralArt.DrawStaticLevel(dc, level);
+            foreach (var goal in world.Goals)
+                ProceduralArt.DrawGoalLight(dc, goal, world.Time);
+        }
 
-        if (level.ShowTutorial && ShowPlayer)
-            DrawTutorial(dc);
+        foreach (var checkpoint in world.Checkpoints)
+            ProceduralArt.DrawCheckpoint(dc, checkpoint, world.Time);
+        foreach (var platform in world.Platforms)
+            ProceduralArt.DrawPlatform(dc, platform);
 
         DrawRewardBoxes(dc, world);
         DrawCoins(dc, world);
@@ -212,20 +223,6 @@ public sealed class GameSurface : FrameworkElement
         }
     }
 
-    private void DrawTutorial(DrawingContext dc)
-    {
-        DrawHint(dc, _sprites.IconLeft, 128, "Left arrow / A  –  walk left");
-        DrawHint(dc, _sprites.IconRight, 192, "Right arrow / D  –  walk right");
-        DrawHint(dc, _sprites.IconJump, 256, "Up arrow / W / Space  –  jump");
-        dc.DrawText(Text("M  –  music on/off      Esc  –  pause", 18, TutorialBrush), new Point(20, 316));
-    }
-
-    private void DrawHint(DrawingContext dc, ImageSource icon, double y, string text)
-    {
-        dc.DrawImage(icon, new Rect(20, y, 32, 32));
-        dc.DrawText(Text(text, 20, TutorialBrush), new Point(64, y));
-    }
-
     private void DrawHitboxes(DrawingContext dc, GameWorld world)
     {
         void Outline(Box b, Color color) =>
@@ -237,6 +234,9 @@ public sealed class GameSurface : FrameworkElement
         foreach (var b in world.RewardBoxes) Outline(b.Bounds, b.IsRevealed ? Colors.SaddleBrown : Colors.Gray);
         foreach (var c in world.Coins) if (!c.Collected) Outline(c.Bounds, Colors.Gold);
         foreach (var e in world.Enemies) if (e.Alive) Outline(e.Bounds, Colors.Orange);
+        foreach (var p in world.Platforms) Outline(p.Bounds, Colors.DodgerBlue);
+        foreach (var c in world.Checkpoints) Outline(c.Bounds, Colors.Teal);
+        foreach (var h in world.Hints) Outline(h.Area, Colors.Plum);
         Outline(world.Player.Bounds, Colors.Magenta);
     }
 

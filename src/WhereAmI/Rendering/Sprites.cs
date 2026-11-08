@@ -19,12 +19,6 @@ public sealed class Sprites
     public BitmapSource RewardBoxFull { get; } = SpriteCache.Get("sprites/reward-box/full.png");
     public BitmapSource RewardBoxEmpty { get; } = SpriteCache.Get("sprites/reward-box/empty.png");
 
-    public BitmapSource IconLeft { get; } = SpriteCache.Get("sprites/ui/left.png");
-    public BitmapSource IconRight { get; } = SpriteCache.Get("sprites/ui/right.png");
-    public BitmapSource IconJump { get; } = SpriteCache.Get("sprites/ui/jump.png");
-    public BitmapSource SoundOn { get; } = SpriteCache.Get("sprites/ui/sound-on.png");
-    public BitmapSource SoundOff { get; } = SpriteCache.Get("sprites/ui/sound-off.png");
-
     public SpriteAnimation ForPlayer(PlayerAnimation animation) => animation switch
     {
         PlayerAnimation.Walk => PlayerWalk,

@@ -36,11 +36,10 @@ public static class LevelLoader
         var level = new LevelDefinition
         {
             Name = Text(path, root, "name"),
-            Background = Text(path, root, "background"),
+            Background = (string)root.Attribute("background"),
             Width = Number(path, root, "width"),
             Height = Number(path, root, "height"),
             TimeLimit = Number(path, root, "timeLimit"),
-            ShowTutorial = Flag(path, root, "showTutorial"),
             PlayerStartX = Number(path, start, "x"),
             PlayerStartY = Number(path, start, "y"),
         };
@@ -70,6 +69,16 @@ public static class LevelLoader
                 case "Enemy":
                     level.Enemies.Add((ReadEnemyKind(path, e), Number(path, e, "x"), Number(path, e, "y"),
                         Number(path, e, "range")));
+                    break;
+                case "MovingPlatform":
+                    level.MovingPlatforms.Add((ReadBox(path, e), Number(path, e, "toX"), Number(path, e, "toY"),
+                        Number(path, e, "speed")));
+                    break;
+                case "Checkpoint":
+                    level.Checkpoints.Add((Number(path, e, "x"), Number(path, e, "y")));
+                    break;
+                case "Hint":
+                    level.Hints.Add((ReadBox(path, e), Text(path, e, "text")));
                     break;
                 default:
                     throw Error(path, e, $"Unknown element <{e.Name.LocalName}>.");

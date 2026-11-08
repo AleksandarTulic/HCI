@@ -7,6 +7,7 @@ public enum GameEvent
     CoinCollected,
     EmptyBoxHit,
     EnemyStomped,
+    CheckpointReached,
     PlayerDied,
     LevelCompleted,
     GameOver,

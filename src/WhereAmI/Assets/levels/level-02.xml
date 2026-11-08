@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Level name="Thorn Hollow" width="8000" height="1024" background="backgrounds/level-02.png" timeLimit="180" showTutorial="false">
+<Level name="Thorn Hollow" width="8000" height="1024" background="backgrounds/level-02.png" timeLimit="180">
   <PlayerStart x="100" y="100" />
 
   <Ground x="0" y="554" w="288" h="54" />
@@ -91,6 +91,9 @@
   <Enemy kind="scribble" x="7264" y="736" range="300" />
   <Enemy kind="scribble" x="7328" y="736" range="300" />
   <Enemy kind="ghost" x="7488" y="736" range="200" />
+
+  <Checkpoint x="3820" y="800" />
+  <Checkpoint x="5560" y="736" />
 
   <Goal x="6464" y="544" w="64" h="64" />
 </Level>
