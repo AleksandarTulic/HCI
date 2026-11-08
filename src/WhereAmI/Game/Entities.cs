@@ -17,6 +17,15 @@ public sealed class Player
     public bool FacingLeft;
     public bool IsDead;
 
+    /// <summary>True while rising from a jump the player started, so releasing the key can cut it short.</summary>
+    public bool IsJumping;
+    public double TimeSinceGrounded;
+    public double JumpBuffer;
+    public double Invulnerable;
+
+    /// <summary>Visual squash (+) or stretch (−) amount, decays back to 0.</summary>
+    public double Squash;
+
     public PlayerAnimation Animation = PlayerAnimation.Idle;
     public double AnimationTime;
 
@@ -118,4 +127,26 @@ public sealed class Effect
 
     /// <summary>0 at spawn, 1 when the effect expires.</summary>
     public double Progress => Age / Duration;
+}
+
+public enum ParticleKind
+{
+    Dust,
+    Spark,
+}
+
+/// <summary>A tiny moving dot: dust from the player's feet or sparks from coins.</summary>
+public sealed class Particle
+{
+    public ParticleKind Kind;
+    public double X;
+    public double Y;
+    public double VelocityX;
+    public double VelocityY;
+    public double Gravity;
+    public double Size;
+    public double Life;
+    public double Age;
+
+    public double Progress => Age / Life;
 }

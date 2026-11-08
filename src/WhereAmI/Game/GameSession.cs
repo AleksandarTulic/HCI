@@ -106,7 +106,7 @@ public sealed class GameSession
         if (Lives > 0)
         {
             // Points earned in a failed attempt are lost, so coins cannot be farmed by dying.
-            StartLevel(LevelIndex);
+            StartLevel(LevelIndex, isRespawn: true);
         }
         else
         {
@@ -115,10 +115,10 @@ public sealed class GameSession
         }
     }
 
-    private void StartLevel(int index)
+    private void StartLevel(int index, bool isRespawn = false)
     {
         LevelIndex = index;
-        World = new GameWorld(_levels[index]);
+        World = new GameWorld(_levels[index], isRespawn);
         TimeLeft = _levels[index].TimeLimit;
         State = SessionState.Playing;
         _respawnTimer = 0;

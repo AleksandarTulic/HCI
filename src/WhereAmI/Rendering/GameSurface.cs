@@ -14,6 +14,8 @@ public sealed class GameSurface : FrameworkElement
     private static readonly Typeface TextFace = new("Segoe UI");
     private static readonly Brush TutorialBrush = Freeze(new SolidColorBrush(Color.FromRgb(0x22, 0x22, 0x22)));
     private static readonly Brush ScoreBrush = Freeze(new SolidColorBrush(Color.FromRgb(0xE0, 0x9A, 0x1A)));
+    private static readonly Brush DustBrush = Freeze(new SolidColorBrush(Color.FromRgb(0x3A, 0x3A, 0x3A)));
+    private static readonly Brush SparkBrush = Freeze(new SolidColorBrush(Color.FromRgb(0xFF, 0xC8, 0x3D)));
 
     private Sprites _sprites;
 
@@ -24,6 +26,7 @@ public sealed class GameSurface : FrameworkElement
     }
 
     public GameSession Session { get; set; }
+    public Camera Camera { get; set; }
     public bool ShowHitboxes { get; set; }
 
     /// <summary>World units are multiplied by this to get screen units (DIPs).</summary>
@@ -36,7 +39,7 @@ public sealed class GameSurface : FrameworkElement
     {
         dc.DrawRectangle(Brushes.White, null, new Rect(0, 0, ActualWidth, ActualHeight));
 
-        if (Session is null || ActualHeight <= 0)
+        if (Session is null || Camera is null || ActualHeight <= 0)
             return;
 
         _sprites ??= new Sprites();
@@ -44,10 +47,10 @@ public sealed class GameSurface : FrameworkElement
 
         // The whole level height always fills the window; wider windows simply see more of the level.
         Scale = ActualHeight / world.Level.Height;
-        CameraX = FollowPlayer(world, ActualWidth / Scale);
+        CameraX = VisibleLeft(world, ActualWidth / Scale);
 
         dc.PushTransform(new ScaleTransform(Scale, Scale));
-        dc.PushTransform(new TranslateTransform(-CameraX, 0));
+        dc.PushTransform(new TranslateTransform(-CameraX + Camera.ShakeX, Camera.ShakeY));
 
         var level = world.Level;
         var background = SpriteCache.Get(level.Background);
@@ -59,7 +62,9 @@ public sealed class GameSurface : FrameworkElement
         DrawRewardBoxes(dc, world);
         DrawCoins(dc, world);
         DrawEnemies(dc, world);
+        DrawParticles(dc, world, ParticleKind.Dust);
         DrawPlayer(dc, world.Player);
+        DrawParticles(dc, world, ParticleKind.Spark);
         DrawEffects(dc, world);
 
         if (ShowHitboxes)
@@ -69,8 +74,8 @@ public sealed class GameSurface : FrameworkElement
         dc.Pop();
     }
 
-    /// <summary>Keeps the player centred, without showing anything past the level edges.</summary>
-    private double FollowPlayer(GameWorld world, double visibleWidth)
+    /// <summary>Left edge of the view around the camera centre, without showing anything past the level edges.</summary>
+    private double VisibleLeft(GameWorld world, double visibleWidth)
     {
         var levelWidth = world.Level.Width;
 
@@ -78,7 +83,7 @@ public sealed class GameSurface : FrameworkElement
         if (visibleWidth >= levelWidth)
             return -(visibleWidth - levelWidth) / 2;
 
-        var x = Math.Clamp(world.Player.Bounds.CenterX - visibleWidth / 2, 0, levelWidth - visibleWidth);
+        var x = Math.Clamp(Camera.CenterX - visibleWidth / 2, 0, levelWidth - visibleWidth);
 
         // Snap to whole device pixels so the background does not shimmer while scrolling.
         var pixelScale = Scale * VisualTreeHelper.GetDpi(this).DpiScaleX;
@@ -87,23 +92,55 @@ public sealed class GameSurface : FrameworkElement
 
     private void DrawPlayer(DrawingContext dc, Player player)
     {
+        // Blink while invulnerable after respawning.
+        if (player.Invulnerable > 0 && (int)(player.Invulnerable * 12) % 2 == 0)
+            return;
+
         var frame = _sprites.ForPlayer(player.Animation).FrameAt(player.AnimationTime);
-        var width = frame.PixelWidth * PlayerSpriteScale;
-        var height = frame.PixelHeight * PlayerSpriteScale;
         var bounds = player.Bounds;
+
+        // Squash and stretch keep the feet planted: wider and flatter on landing, taller on take-off.
+        var scaleX = PlayerSpriteScale * (1 + player.Squash);
+        var scaleY = PlayerSpriteScale * (1 - player.Squash);
+        var width = frame.PixelWidth * scaleX;
+        var height = frame.PixelHeight * scaleY;
         var rect = new Rect(bounds.CenterX - width / 2, bounds.Bottom - height, width, height);
 
+        var pushes = 0;
         if (player.IsDead)
-            dc.PushOpacity(0.35);
+        {
+            // Upside down while falling off the screen.
+            dc.PushTransform(new ScaleTransform(1, -1, bounds.CenterX, bounds.CenterY));
+            pushes++;
+        }
+
         if (player.FacingLeft)
+        {
             dc.PushTransform(new ScaleTransform(-1, 1, bounds.CenterX, 0));
+            pushes++;
+        }
 
         dc.DrawImage(frame, rect);
 
-        if (player.FacingLeft)
+        for (var i = 0; i < pushes; i++)
             dc.Pop();
-        if (player.IsDead)
+    }
+
+    private static void DrawParticles(DrawingContext dc, GameWorld world, ParticleKind kind)
+    {
+        foreach (var p in world.Particles)
+        {
+            if (p.Kind != kind)
+                continue;
+
+            var fade = 1 - p.Progress;
+            var brush = kind == ParticleKind.Dust ? DustBrush : SparkBrush;
+            var radius = p.Size / 2 * (kind == ParticleKind.Dust ? 0.6 + 0.4 * fade : fade);
+
+            dc.PushOpacity(kind == ParticleKind.Dust ? 0.55 * fade : fade);
+            dc.DrawEllipse(brush, null, new Point(p.X, p.Y), radius, radius);
             dc.Pop();
+        }
     }
 
     private void DrawCoins(DrawingContext dc, GameWorld world)

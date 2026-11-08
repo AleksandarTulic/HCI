@@ -17,6 +17,7 @@ public partial class MainWindow : Window
 {
     private readonly KeyboardInput _input = new();
     private readonly GameLoop _loop;
+    private readonly Camera _camera = new();
     private AudioManager _audio;
     private GameSession _session;
 
@@ -101,6 +102,7 @@ public partial class MainWindow : Window
         }
 
         Surface.Session = _session;
+        Surface.Camera = _camera;
         _audio.StartMusic("audio/music/magic.mp3");
         UpdateSoundIcon();
         _loop.Start();
@@ -151,7 +153,25 @@ public partial class MainWindow : Window
         _input.EndUpdate();
 
         foreach (var gameEvent in _session.DrainEvents())
+        {
             PlaySound(gameEvent);
+            ShakeCamera(gameEvent);
+        }
+
+        _camera.Update(dt, _session.World);
+    }
+
+    private void ShakeCamera(GameEvent gameEvent)
+    {
+        switch (gameEvent)
+        {
+            case GameEvent.PlayerDied:
+                _camera.AddTrauma(0.6);
+                break;
+            case GameEvent.EnemyStomped:
+                _camera.AddTrauma(0.3);
+                break;
+        }
     }
 
     private void PlaySound(GameEvent gameEvent)

@@ -28,7 +28,7 @@ dotnet run --project src/WhereAmI
 |------------------------|---------------------------------|
 | Left arrow / A         | Walk left                       |
 | Right arrow / D        | Walk right                      |
-| Up arrow / W / Space   | Jump                            |
+| Up arrow / W / Space   | Jump (hold for a higher jump)   |
 | Space / Enter          | Play again after the game ends  |
 | M                      | Music on/off                    |
 | F11 / Alt+Enter        | Fullscreen on/off               |
