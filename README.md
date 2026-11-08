@@ -2,28 +2,42 @@
 
 ![Where Am I?](docs/images/banner.png)
 
-A 2D side-scrolling platformer in a black-and-white silhouette style, written in C# with WPF.
+[![Build](https://github.com/AleksandarTulic/HCI/actions/workflows/build.yml/badge.svg)](https://github.com/AleksandarTulic/HCI/actions/workflows/build.yml)
 
-A small dark creature wakes up in a foggy, unfamiliar world. Collect coins, hit the `!` boxes,
-stomp on ghosts, ride floating platforms and avoid thorns. Light lantern checkpoints on the way
-and reach the end of each of the three levels before the time runs out.
+A 2D platformer about a small dark creature that wakes up in a foggy, unfamiliar world.
+Follow the trail of light through three levels: collect coins, shake them out of `!` boxes,
+stomp on ghosts, ride floating platforms, avoid thorns and light lantern checkpoints on the way.
 
-> **Status:** being refactored. The game was originally written in 2021 as a learning project
-> for a Human-Computer Interaction course. It is being moved to .NET 10, restructured, and made
-> to run at any screen resolution.
+Written in C# with WPF on .NET 10. Originally made in 2021 as a learning project for a
+Human-Computer Interaction course, then rebuilt with a proper game loop, menus, new levels and
+art generated in Blender.
 
-![Gameplay](docs/images/game.png)
+![Gameplay](docs/images/gameplay.gif)
 
-## Requirements
+| | |
+|---|---|
+| ![Main menu](docs/images/screenshots/main-menu.png) | ![Level select](docs/images/screenshots/level-select.png) |
+| ![Foggy Meadow](docs/images/screenshots/foggy-meadow.png) | ![Lantern Marsh](docs/images/screenshots/lantern-marsh.png) |
+| ![Pause menu](docs/images/screenshots/pause.png) | ![Level complete](docs/images/screenshots/level-complete.png) |
 
-- Windows 10 or 11
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+## Features
 
-## Build and run
+- **Three levels**, each with its own mood: *Foggy Meadow*, *Thorn Hollow* and *Lantern Marsh*.
+- **Any screen size.** The whole height of a level always fits the window; wider screens see more
+  of the world. Fullscreen or windowed, any aspect ratio, any DPI.
+- **Tight controls.** Variable jump height, coyote time, jump buffering, smooth acceleration.
+- **Checkpoints and hints.** Lanterns save your progress through a level; short hints appear
+  where they are needed instead of a wall of text.
+- **Score and stars.** Coins, defeated enemies and a time bonus add up; collect every coin
+  for three stars. Best scores and unlocked levels are saved.
+- **Parallax backgrounds** with three layers of fog, pines and bare trees.
+- **Menus made for keyboard and mouse**: main menu, a level map, options, pause, results.
 
-```sh
-dotnet run --project src/WhereAmI
-```
+## Play
+
+Download the latest `WhereAmI-vX.Y.Z-win-x64.zip` from
+[Releases](https://github.com/AleksandarTulic/HCI/releases), unzip it anywhere and run
+`WhereAmI\WhereAmI.exe`. It runs on Windows 10 and 11 (64-bit); nothing else needs to be installed.
 
 ## Controls
 
@@ -37,28 +51,29 @@ dotnet run --project src/WhereAmI
 | F11 / Alt+Enter        | Fullscreen on/off               |
 | F3                     | Show hitboxes                   |
 
-Menus work with the keyboard (arrows, Enter, Esc) and the mouse.
+Menus work with the arrow keys, Enter and Esc, or with the mouse.
 
-## Screen resolution
+## Build from source
 
-The game runs at any resolution and aspect ratio. The full height of a level always fills the
-window, and wider screens see more of the level to the sides. Menus and the HUD scale with the window.
+Requirements: Windows 10 or 11 and the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
 
-## Settings and progress
+```sh
+dotnet run --project src/WhereAmI
+```
 
-Settings (volume, fullscreen, screen shake) and progress (unlocked levels, best scores and stars)
-are saved in `%AppData%\WhereAmI\` as small XML files.
-
-## Command-line options
+Useful command-line options:
 
 ```sh
 dotnet run --project src/WhereAmI -- --windowed            # start in a window
 dotnet run --project src/WhereAmI -- --windowed 1280x720   # window with this client size
-dotnet run --project src/WhereAmI -- --no-save             # fresh settings and progress, nothing is saved
 dotnet run --project src/WhereAmI -- --level 3             # skip the menus and play level 3
+dotnet run --project src/WhereAmI -- --no-save             # fresh settings and progress, nothing is saved
 ```
 
 In Debug builds, F8 finishes the current level and F7 loses a life, to test the menus quickly.
+
+Settings and progress are stored in `%AppData%\WhereAmI\`. If the game ever crashes, the details
+are written to `crash.log` in the same folder.
 
 ## Project layout
 
@@ -68,18 +83,36 @@ src/WhereAmI/
   Game/        Game rules: world, player, enemies, pickups, session (no WPF code)
   Input/       Keyboard to game action mapping
   Levels/      XML level loader
-  Rendering/   Sprite cache, animations, camera and the surface that draws the world
+  Rendering/   Sprites, animations, camera, parallax and the surface that draws the world
   Audio/       Music, sound effects and generated menu sounds
   UI/          Theme, menu screens and HUD
   Assets/      Sprites, backgrounds, audio and levels
-docs/          Screenshots and the level format
-tools/         Developer scripts; tools/blender/ renders the 3D props, backgrounds and icon
+docs/          Level format, screenshots and images
+tools/
+  blender/          Scripts that render the 3D props, parallax layers, icon and banner
+  smoke-test.ps1    Starts the game, optionally presses keys, and saves screenshots
 ```
 
-Levels are plain XML files, described in [docs/level-format.md](docs/level-format.md).
+## Making levels
 
-## Levels
+Levels are plain XML files in `src/WhereAmI/Assets/levels/`. The format is described in
+[docs/level-format.md](docs/level-format.md). Press **F3** in the game to see every hitbox,
+and start the game with `--level N` to jump straight into the level you are editing.
 
-| Level 1 | Level 2 |
-|---------|---------|
-| ![Level 1](docs/images/map0.png) | ![Level 2](docs/images/map1.png) |
+## Art
+
+The coin, the boxes, the goal gate, the lanterns, the parallax layers, the icon and the banner
+are generated by Python scripts for Blender, see [tools/blender](tools/blender/README.md).
+Nothing is modelled by hand, so every asset can be tweaked in code and rendered again.
+
+## Releases
+
+Releases are built automatically by GitHub Actions when a version tag is pushed:
+
+```sh
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Versions follow `MAJOR.MINOR.PATCH`: fixes raise PATCH (`v1.0.1`), new content such as a level
+raises MINOR (`v1.1.0`), and changes that break saved progress raise MAJOR (`v2.0.0`).

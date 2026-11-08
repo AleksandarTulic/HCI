@@ -8,6 +8,8 @@
     Keys: Left Right Up Down Space Enter Escape F3 F7 F8 F11 A D W M.
     Keys are only sent when the game window is in the foreground, so they never reach another app.
 
+    With -Frames N the keys play while N frames are recorded, for making animated GIFs.
+
 .EXAMPLE
     powershell -NoProfile -ExecutionPolicy Bypass -File tools/smoke-test.ps1 -Out shot.png -Seconds 6
     powershell -NoProfile -ExecutionPolicy Bypass -File tools/smoke-test.ps1 -Out shot.png -Keys "Right:1.5; Up:0.05"
@@ -18,7 +20,11 @@ param(
     [double]$Seconds = 6,
     [string]$Keys = "",
     [string]$GameArgs = "",
-    [string]$Configuration = "Debug"
+    [string]$Configuration = "Debug",
+    [string]$Exe = "",   # optional: run this executable instead of the Debug build, e.g. a published one
+    [switch]$ClientOnly,  # capture only the game area, without the window frame and title bar
+    [int]$Frames = 0,     # when > 0: record this many frames (Out-000.png, Out-001.png, ...) while the keys play
+    [int]$FrameMs = 66    # time between recorded frames
 )
 
 $ErrorActionPreference = "Stop"
@@ -58,8 +64,62 @@ function Invoke-KeySequence([string]$sequence, [IntPtr]$window) {
     }
 }
 
+# Captures the game window (or only its client area) even if other windows cover it.
+function Save-Window([IntPtr]$window, [string]$path) {
+    $rect = New-Object Native.User32+RECT
+    if ($ClientOnly) { [void][Native.User32]::GetClientRect($window, [ref]$rect) }
+    else { [void][Native.User32]::GetWindowRect($window, [ref]$rect) }
+    $bitmap = New-Object System.Drawing.Bitmap ($rect.Right - $rect.Left), ($rect.Bottom - $rect.Top)
+    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+    $hdc = $graphics.GetHdc()
+    # 2 = PW_RENDERFULLCONTENT (needed for WPF/DirectX), 1 = PW_CLIENTONLY
+    [void][Native.User32]::PrintWindow($window, $hdc, $(if ($ClientOnly) { 3 } else { 2 }))
+    $graphics.ReleaseHdc($hdc)
+    $bitmap.Save($path, [System.Drawing.Imaging.ImageFormat]::Png)
+    $graphics.Dispose()
+    $bitmap.Dispose()
+}
+
+# Plays the key sequence on a timeline while recording frames at a fixed interval.
+function Save-Frames([IntPtr]$window, [string]$sequence) {
+    $events = New-Object System.Collections.Generic.List[object]
+    $t = 0
+    foreach ($step in $sequence.Split(';')) {
+        $step = $step.Trim()
+        if (-not $step) { continue }
+        $name, $time = $step.Split(':')
+        $ms = [int]([double]::Parse($time, [Globalization.CultureInfo]::InvariantCulture) * 1000)
+        if ($name -ne 'wait') {
+            if (-not $virtualKeys.ContainsKey($name)) { throw "Unknown key '$name'" }
+            $events.Add(@{ At = $t; Key = [byte]$virtualKeys[$name]; Up = $false })
+            $events.Add(@{ At = $t + $ms; Key = [byte]$virtualKeys[$name]; Up = $true })
+        }
+        $t += $ms
+    }
+
+    $base = [IO.Path]::Combine([IO.Path]::GetDirectoryName($Out), [IO.Path]::GetFileNameWithoutExtension($Out))
+    $clock = [Diagnostics.Stopwatch]::StartNew()
+    $next = 0
+    for ($frame = 0; $frame -lt $Frames; $frame++) {
+        while ($next -lt $events.Count -and $events[$next].At -le $clock.ElapsedMilliseconds) {
+            if ([Native.User32]::GetForegroundWindow() -ne $window) { throw "Game window lost focus; stopped sending keys." }
+            $e = $events[$next]
+            [Native.User32]::keybd_event($e.Key, 0, $(if ($e.Up) { 2 } else { 0 }), [UIntPtr]::Zero)
+            $next++
+        }
+        Save-Window $window ("{0}-{1:000}.png" -f $base, $frame)
+        $wait = ($frame + 1) * $FrameMs - $clock.ElapsedMilliseconds
+        if ($wait -gt 0) { Start-Sleep -Milliseconds $wait }
+    }
+
+    # Release anything still held.
+    for (; $next -lt $events.Count; $next++) {
+        if ($events[$next].Up) { [Native.User32]::keybd_event($events[$next].Key, 0, 2, [UIntPtr]::Zero) }
+    }
+}
+
 $root = Split-Path -Parent $PSScriptRoot
-$exe = Join-Path $root "src/WhereAmI/bin/$Configuration/net10.0-windows/WhereAmI.exe"
+$exe = if ($Exe) { $Exe } else { Join-Path $root "src/WhereAmI/bin/$Configuration/net10.0-windows/WhereAmI.exe" }
 if (-not (Test-Path $exe)) { throw "Game not built: $exe" }
 
 # Start from an unrelated directory to prove assets do not depend on the working directory.
@@ -71,31 +131,33 @@ try {
     Start-Sleep -Milliseconds ([int]($Seconds * 1000))
     $game.Refresh()
     $window = $game.MainWindowHandle
-    if ($game.HasExited -or $window -eq [IntPtr]::Zero) { throw "Game window did not appear (exited: $($game.HasExited))." }
+    if ($game.HasExited -or $window -eq [IntPtr]::Zero) {
+        # Capture the whole screen instead, to see what happened (an error dialog, for example).
+        Add-Type -AssemblyName System.Windows.Forms
+        $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+        $screen = New-Object System.Drawing.Bitmap $bounds.Width, $bounds.Height
+        $g = [System.Drawing.Graphics]::FromImage($screen)
+        $g.CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.Size)
+        $screen.Save($Out, [System.Drawing.Imaging.ImageFormat]::Png)
+        $g.Dispose(); $screen.Dispose()
+        throw "Game window did not appear (exited: $($game.HasExited)). Screen saved to $Out"
+    }
 
     if ($Keys) {
         [void][Native.User32]::SetForegroundWindow($window)
         Start-Sleep -Milliseconds 300
         if ([Native.User32]::GetForegroundWindow() -ne $window) { throw "Could not bring the game window to the foreground; no keys were sent." }
-        Invoke-KeySequence $Keys $window
+        if ($Frames -eq 0) { Invoke-KeySequence $Keys $window }
     }
 
-    # Capture just the game window, even if other windows cover it.
-    $rect = New-Object Native.User32+RECT
-    [void][Native.User32]::GetWindowRect($window, [ref]$rect)
     $client = New-Object Native.User32+RECT
     [void][Native.User32]::GetClientRect($window, [ref]$client)
-    $width = $rect.Right - $rect.Left
-    $height = $rect.Bottom - $rect.Top
-
-    $bitmap = New-Object System.Drawing.Bitmap $width, $height
-    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-    $hdc = $graphics.GetHdc()
-    [void][Native.User32]::PrintWindow($window, $hdc, 2)   # 2 = PW_RENDERFULLCONTENT, needed for WPF/DirectX
-    $graphics.ReleaseHdc($hdc)
-    $bitmap.Save($Out, [System.Drawing.Imaging.ImageFormat]::Png)
-    $graphics.Dispose()
-    $bitmap.Dispose()
+    if ($Frames -gt 0) {
+        Save-Frames $window $Keys
+    }
+    else {
+        Save-Window $window $Out
+    }
 
     $game.Refresh()
     if ($game.HasExited) {

@@ -1,0 +1,29 @@
+# Checks that the game builds on every push and pull request.
+name: Build
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build
+        run: dotnet build src/WhereAmI/WhereAmI.csproj --configuration Release
+
+      - name: Check that all levels are valid XML
+        shell: pwsh
+        run: |
+          Get-ChildItem src/WhereAmI/Assets/levels/level-*.xml | ForEach-Object {
+            [xml]$level = Get-Content $_.FullName -Raw
+            if ($level.DocumentElement.Name -ne 'Level') { throw "$($_.Name): root element must be <Level>" }
+            Write-Host "OK $($_.Name): $($level.Level.name)"
+          }
