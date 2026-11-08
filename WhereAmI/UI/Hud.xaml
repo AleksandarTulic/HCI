@@ -9,6 +9,11 @@
         <StackPanel x:Name="Lanterns" Orientation="Horizontal" />
       </Border>
 
+      <!-- Eggs ready to throw; the next one fills in while it recharges. -->
+      <Border Style="{StaticResource Pill}" ToolTip="Eggs (X or J to throw)">
+        <StackPanel x:Name="EggIcons" Orientation="Horizontal" />
+      </Border>
+
       <Border Style="{StaticResource Pill}">
         <StackPanel Orientation="Horizontal">
           <Image x:Name="CoinIcon" Width="26" Height="26" Margin="0,0,10,0" RenderTransformOrigin="0.5,0.5">

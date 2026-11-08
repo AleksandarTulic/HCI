@@ -7,6 +7,8 @@ public enum PlayerAnimation
     Idle,
     Walk,
     Jump,
+    Flutter,
+    Throw,
 }
 
 public sealed class Player
@@ -24,6 +26,17 @@ public sealed class Player
     public double TimeSinceGrounded;
     public double JumpBuffer;
     public double Invulnerable;
+
+    public bool IsFluttering;
+    public bool FlutterArmed;
+    public double FlutterTime;
+
+    public int Eggs = Tuning.MaxEggs;
+    public double EggRecharge;
+    public double ThrowCooldown;
+
+    /// <summary>Counts down while the throw animation plays.</summary>
+    public double ThrowTime;
 
     /// <summary>Visual squash (+) or stretch (−) amount, decays back to 0.</summary>
     public double Squash;
@@ -128,8 +141,12 @@ public sealed class Checkpoint
 
 public enum EnemyKind
 {
-    Ghost,
-    Scribble,
+    Ghost,      // floats and bobs; now and then fades out and cannot be touched
+    Scribble,   // rolls along its path and charges when it sees the player
+    Moth,       // flies in figure eights and shoots slow embers
+    Owl,        // sits on a branch and beats its wings to blow the player away
+    Burr,       // walks and turns at edges; thorns on its back, so only eggs work
+    Toad,       // jumps towards the player in arcs
 }
 
 public sealed class Enemy
@@ -137,26 +154,96 @@ public sealed class Enemy
     public Enemy(EnemyKind kind, double x, double y, double range)
     {
         Kind = kind;
-        X = x;
-        Y = y;
+        X = HomeX = x;
+        Y = HomeY = y;
+        Range = range;
         MinX = x - range / 2;
         MaxX = x + range / 2;
-        VelocityX = Tuning.EnemySpeed;
-        (Width, Height) = kind == EnemyKind.Ghost ? (44, 64) : (59, 64);
+        VelocityX = kind == EnemyKind.Burr ? Tuning.BurrSpeed : Tuning.EnemySpeed;
+        (Width, Height) = kind switch
+        {
+            EnemyKind.Ghost => (44, 64),
+            EnemyKind.Scribble => (59, 64),
+            EnemyKind.Moth => (48, 40),
+            EnemyKind.Owl => (56, 64),
+            EnemyKind.Burr => (56, 40),
+            _ => (52, 44),
+        };
+        OnGround = true;
     }
 
     public EnemyKind Kind { get; }
     public double X { get; set; }
-    public double Y { get; }
+    public double Y { get; set; }
+    public double HomeX { get; }
+    public double HomeY { get; }
+    public double Range { get; }
     public double Width { get; }
     public double Height { get; }
     public double MinX { get; }
     public double MaxX { get; }
     public double VelocityX { get; set; }
+    public double VelocityY { get; set; }
     public bool Alive { get; set; } = true;
+    public bool FacingLeft { get; set; }
+    public bool OnGround { get; set; }
     public double AnimationTime { get; set; }
 
-    public int Points => Kind == EnemyKind.Ghost ? 100 : 200;
+    /// <summary>General purpose timer for the enemy's behaviour (shooting, flapping, jumping...).</summary>
+    public double Timer { get; set; }
+
+    /// <summary>Ghost: faded out. Owl: beating its wings. Scribble: charging.</summary>
+    public bool Special { get; set; }
+
+    /// <summary>Seconds since a toad landed, for its landing animation.</summary>
+    public double SinceLanding { get; set; } = 1;
+
+    public int Points => Kind switch
+    {
+        EnemyKind.Ghost => 100,
+        EnemyKind.Scribble => 200,
+        EnemyKind.Moth => 250,
+        EnemyKind.Owl => 400,
+        EnemyKind.Burr => 300,
+        _ => 200,
+    };
+
+    /// <summary>A faded ghost cannot hurt or be hurt.</summary>
+    public bool IsTangible => !(Kind == EnemyKind.Ghost && Special);
+
+    /// <summary>Owls and burrs cannot be stomped; toads only while sitting on the ground.</summary>
+    public bool CanBeStomped => Kind switch
+    {
+        EnemyKind.Owl or EnemyKind.Burr => false,
+        EnemyKind.Toad => OnGround,
+        _ => true,
+    };
+
+    /// <summary>A flapping owl blows eggs away.</summary>
+    public bool DeflectsEggs => Kind == EnemyKind.Owl && Special;
+
+    public Box Bounds => new(X, Y, Width, Height);
+}
+
+public enum ProjectileKind
+{
+    Egg,
+    Ember,
+}
+
+/// <summary>Something flying through the air: the player's eggs or a moth's embers.</summary>
+public sealed class Projectile
+{
+    public ProjectileKind Kind;
+    public double X;
+    public double Y;
+    public double Width;
+    public double Height;
+    public double VelocityX;
+    public double VelocityY;
+    public int Bounces;
+    public double Age;
+    public bool Gone;
 
     public Box Bounds => new(X, Y, Width, Height);
 }
@@ -194,9 +281,12 @@ public enum ParticleKind
 {
     Dust,
     Spark,
+    Shell,      // a piece of broken egg shell
+    Feather,    // dark feathers falling while the player flutters
+    Wind,       // pale streaks in an owl's gust
 }
 
-/// <summary>A tiny moving dot: dust from the player's feet or sparks from coins.</summary>
+/// <summary>A tiny moving piece: dust, sparks, egg shells, feathers or wind streaks.</summary>
 public sealed class Particle
 {
     public ParticleKind Kind;
@@ -208,6 +298,9 @@ public sealed class Particle
     public double Size;
     public double Life;
     public double Age;
+    public double Rotation;
+    public double Spin;
+    public int Variant;
 
     public double Progress => Age / Life;
 }

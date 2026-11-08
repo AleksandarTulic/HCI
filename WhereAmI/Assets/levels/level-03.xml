@@ -57,9 +57,13 @@
   <Enemy kind="ghost" x="1200" y="656" range="160" />
   <Enemy kind="scribble" x="2700" y="696" range="240" />
   <Enemy kind="ghost" x="4150" y="796" range="200" />
-  <Enemy kind="ghost" x="4480" y="796" range="160" />
+  <Enemy kind="burr" x="4500" y="820" range="160" />
   <Enemy kind="scribble" x="6002" y="736" range="120" />
-  <Enemy kind="ghost" x="6640" y="656" range="140" />
+  <Enemy kind="toad" x="6560" y="676" range="200" />
+  <Enemy kind="toad" x="650" y="756" range="300" />
+  <Enemy kind="moth" x="1750" y="560" range="360" />
+  <Enemy kind="owl" x="3560" y="336" />
+  <Enemy kind="moth" x="5450" y="560" range="240" />
 
   <Checkpoint x="4000" y="764" />
   <Checkpoint x="5760" y="704" />

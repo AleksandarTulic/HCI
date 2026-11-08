@@ -30,7 +30,38 @@ public static class Tuning
     public const double RespawnDelay = 1.2;
     public const double RespawnInvulnerability = 1.5;  // enemies cannot hurt the player right after respawning
 
+    // Flutter: pressing jump again in the air flaps the wings and slows the fall for a while.
+    public const double FlutterGravityMultiplier = 0.3;
+    public const double FlutterFallSpeed = 170;
+    public const double FlutterDuration = 1.4;
+
+    // Eggs: thrown in an arc, bounce once on the ground, defeat any enemy they hit.
+    public const int MaxEggs = 3;
+    public const double EggRecharge = 2.0;             // seconds to get one egg back
+    public const double EggCooldown = 0.3;
+    public const double EggSpeedX = 620;
+    public const double EggSpeedY = 420;
+    public const double EggGravity = 1700;
+    public const double EggWidth = 18;
+    public const double EggHeight = 22;
+    public const double EggLifetime = 2.5;
+
     public const double EnemySpeed = 70;
+    public const double ScribbleChargeSpeed = 170;
+    public const double ScribbleSightRange = 340;
+    public const double EmberSpeed = 230;
+    public const double EmberSize = 22;
+    public const double MothShootInterval = 3.2;
+    public const double MothSightRange = 650;
+    public const double OwlRestTime = 2.6;
+    public const double OwlFlapTime = 1.8;
+    public const double OwlWindReach = 460;
+    public const double OwlWindSpeed = 300;            // how fast the wind pushes the player
+    public const double BurrSpeed = 60;
+    public const double ToadJumpInterval = 1.8;
+    public const double ToadSightRange = 520;
+    public const double ToadJumpSpeedX = 210;
+    public const double ToadJumpSpeedY = 760;
 
     public const double CheckpointWidth = 40;
     public const double CheckpointHeight = 96;

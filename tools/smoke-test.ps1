@@ -5,7 +5,7 @@
     Optionally plays a key sequence after the start delay, e.g. to test movement:
     -Keys "F3:0.05; Right:1.5; Up:0.05; wait:0.5"
     Each step is <key>:<seconds held>; "wait" only pauses.
-    Keys: Left Right Up Down Space Enter Escape F3 F7 F8 F11 A D W M.
+    Keys: Left Right Up Down Space Enter Escape F3 F7 F8 F11 A D W M X J.
     Keys are only sent when the game window is in the foreground, so they never reach another app.
 
     With -Frames N the keys play while N frames are recorded, for making animated GIFs.
@@ -45,7 +45,7 @@ public struct RECT { public int Left, Top, Right, Bottom; }
 
 $virtualKeys = @{
     Left = 0x25; Up = 0x26; Right = 0x27; Down = 0x28; Space = 0x20; Enter = 0x0D; Escape = 0x1B
-    F3 = 0x72; F7 = 0x76; F8 = 0x77; F11 = 0x7A; A = 0x41; D = 0x44; W = 0x57; M = 0x4D
+    F3 = 0x72; F7 = 0x76; F8 = 0x77; F11 = 0x7A; A = 0x41; D = 0x44; W = 0x57; M = 0x4D; X = 0x58; J = 0x4A
 }
 
 function Invoke-KeySequence([string]$sequence, [IntPtr]$window) {

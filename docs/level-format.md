@@ -44,15 +44,28 @@ All positions and sizes are in world units. One unit is one pixel of the backgro
 | `Spikes`      | `x`, `y`, `w`, `h`              | Touching them costs a life.                                               |
 | `RewardBox`   | `x`, `y`, `coins`, `hidden`     | 64×64, solid. Hitting it from below gives one coin until it is empty. A `hidden="true"` box is invisible and not solid until it is hit from below. |
 | `Coin`        | `x`, `y`                        | 32×32 pickup, worth 1 point.                                              |
-| `Enemy`       | `kind`, `x`, `y`, `range`       | Walks left and right over `range` units centred on `x`. Jump on it to defeat it; any other touch costs a life. `kind` is `ghost` (100 points) or `scribble` (200 points). |
+| `Enemy`       | `kind`, `x`, `y`, `range`       | An enemy; `x`, `y` is the top-left of its body. See the table below. `range` is optional for kinds that stay in place or walk freely. |
 | `MovingPlatform` | `x`, `y`, `w`, `h`, `toX`, `toY`, `speed` | Solid platform gliding between `x,y` and `toX,toY` at `speed` units per second, easing at both ends. Carries the player standing on it. |
 | `Checkpoint`  | `x`, `y`                        | 40×96 lantern post. Touching it lights it; after losing a life the player comes back at the last lit one, with a full timer. |
 | `Hint`        | `x`, `y`, `w`, `h`, `text`      | Invisible area. While the player is inside, `text` is shown at the bottom of the screen. |
 | `Goal`        | `x`, `y`, `w`, `h`              | At least one required. Touching it finishes the level.                    |
 
+## Enemies
+
+| `kind`     | Size  | Behaviour | Defeated by | Points |
+|------------|-------|-----------|-------------|--------|
+| `ghost`    | 44×64 | Walks over `range` units centred on `x` and bobs up and down. Every few seconds it fades out and can neither hurt nor be hurt. | Stomp, egg | 100 |
+| `scribble` | 59×64 | Rolls over `range`; when it sees the player nearby it charges. | Stomp, egg | 200 |
+| `moth`     | 48×40 | Flies a figure eight `range` units wide around `x`, `y` and shoots slow embers at the player. | Stomp, egg | 250 |
+| `owl`      | 56×64 | Sits still. Every few seconds it beats its wings and the gust pushes the player away. While flapping it blows eggs away. | Egg (while resting) | 400 |
+| `burr`     | 56×40 | Walks and turns at walls and at the edge of the ground (and at the ends of `range`, if given). Thorny: stomping it hurts. | Egg | 300 |
+| `toad`     | 52×44 | Sits on the ground and jumps towards the player in arcs, staying within `range` of `x`. | Stomp (on the ground), egg | 200 |
+
+For enemies that stand on the ground, set `y` to the ground's top minus the enemy's height.
+
 Losing a life does not reset the level: collected coins, defeated enemies and opened boxes stay that way.
 
-To try a level directly, start the game with `--level N`, for example
-`dotnet run --project WhereAmI -- --windowed --level 3`.
+To try a level directly, start the game with `--level N`, and add `--at X` to start at a
+world position, for example `dotnet run --project WhereAmI -- --windowed --level 3 --at 3500`.
 
 Press **F3** in the game to see every hitbox. That makes it easy to line objects up with the background.

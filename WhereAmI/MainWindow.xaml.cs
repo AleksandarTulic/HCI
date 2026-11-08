@@ -113,7 +113,7 @@ public partial class MainWindow : Window
 
         ShowMainMenu();
         if (_launch.StartLevel is { } startLevel)
-            StartGame(Math.Min(startLevel, _levels.Count - 1));
+            StartGame(Math.Min(startLevel, _levels.Count - 1), _launch.StartX);
         _loop.Start();
     }
 
@@ -172,11 +172,15 @@ public partial class MainWindow : Window
         FadeThen(() => ShowScreen(intro));
     }
 
-    private void StartGame(int level)
+    private void StartGame(int level) => StartGame(level, null);
+
+    private void StartGame(int level, double? startX)
     {
         FadeThen(() =>
         {
             _session = new GameSession(_levels, level);
+            if (startX is { } x)
+                _session.World.Player.X = x;   // falls down onto whatever is below
             _toastedLevel = -1;
             EnterPlayMode();
         });
@@ -404,6 +408,13 @@ public partial class MainWindow : Window
             GameEvent.EmptyBoxHit => Sound.EmptyBox,
             GameEvent.EnemyStomped => Sound.Stomp,
             GameEvent.PlayerDied => Sound.Death,
+            GameEvent.EnemyHitByEgg => Sound.EggCrack,
+            GameEvent.EggThrown => Sound.EggThrow,
+            GameEvent.EggBroke => Sound.EggCrack,
+            GameEvent.EmberShot => Sound.Ember,
+            GameEvent.OwlGust => Sound.Wind,
+            GameEvent.ToadLanded => Sound.ToadLand,
+            GameEvent.Flutter => Sound.Flutter,
             GameEvent.GameOver => Sound.GameOver,
             _ => null,
         };
@@ -420,7 +431,11 @@ public partial class MainWindow : Window
                 _camera.AddTrauma(0.6);
                 break;
             case GameEvent.EnemyStomped:
+            case GameEvent.EnemyHitByEgg:
                 _camera.AddTrauma(0.3);
+                break;
+            case GameEvent.ToadLanded:
+                _camera.AddTrauma(0.15);
                 break;
         }
     }

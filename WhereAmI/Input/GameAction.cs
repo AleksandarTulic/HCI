@@ -5,6 +5,7 @@ public enum GameAction
     MoveLeft,
     MoveRight,
     Jump,
+    Throw,
     Confirm,
     Quit,
     ToggleMusic,

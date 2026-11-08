@@ -12,6 +12,7 @@ public sealed class KeyboardInput : IInput
         [GameAction.MoveLeft] = new[] { Key.Left, Key.A },
         [GameAction.MoveRight] = new[] { Key.Right, Key.D },
         [GameAction.Jump] = new[] { Key.Up, Key.W, Key.Space },
+        [GameAction.Throw] = new[] { Key.X, Key.J, Key.LeftCtrl },
         [GameAction.Confirm] = new[] { Key.Enter, Key.Space },
         [GameAction.Quit] = new[] { Key.Escape },
         [GameAction.ToggleMusic] = new[] { Key.M },

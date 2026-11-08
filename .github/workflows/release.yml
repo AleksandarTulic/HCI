@@ -30,7 +30,7 @@ jobs:
           $tag = "${{ github.ref_name }}"
           $version = $tag.TrimStart('v')
           # One WhereAmI.exe with the runtime inside, a few native WPF DLLs next to it, and the Assets folder.
-          dotnet publish src/WhereAmI/WhereAmI.csproj `
+          dotnet publish WhereAmI/WhereAmI.csproj `
             --configuration Release `
             --runtime win-x64 `
             --self-contained true `

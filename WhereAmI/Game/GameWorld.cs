@@ -7,7 +7,7 @@ using WhereAmI.Levels;
 namespace WhereAmI.Game;
 
 /// <summary>Everything inside one running level: player, level geometry, enemies and pickups.</summary>
-public sealed class GameWorld
+public sealed partial class GameWorld
 {
     private readonly List<GameEvent> _events = new();
     private readonly Random _random = new();
@@ -86,7 +86,7 @@ public sealed class GameWorld
         Time += dt;
         UpdateEffects(dt);
         UpdateParticles(dt);
-        UpdateEnemies(dt);
+        UpdateEnemies(dt, aggressive: false);
         UpdatePlatforms(dt);
     }
 
@@ -126,8 +126,9 @@ public sealed class GameWorld
         Time += dt;
         UpdateEffects(dt);
         UpdateParticles(dt);
-        UpdateEnemies(dt);
+        UpdateEnemies(dt, aggressive: true);
         UpdatePlatforms(dt);
+        UpdateProjectiles(dt);
 
         if (IsCompleted)
             return;
@@ -148,6 +149,8 @@ public sealed class GameWorld
             return;
 
         UpdatePlayer(dt, input);
+        UpdateEggs(dt, input);
+        ApplyWind(dt);
         CheckInteractions(input);
 
         if (Player.Y > Level.Height)
@@ -178,12 +181,20 @@ public sealed class GameWorld
             p.FacingLeft = direction < 0;
 
         // Jump buffering and coyote time make jumps forgiving about exact timing.
-        if (input.ConsumePressed(GameAction.Jump))
-            p.JumpBuffer = Tuning.JumpBufferTime;
-        else
-            p.JumpBuffer = Math.Max(0, p.JumpBuffer - dt);
-
         p.TimeSinceGrounded = p.OnGround ? 0 : p.TimeSinceGrounded + dt;
+
+        if (input.ConsumePressed(GameAction.Jump))
+        {
+            p.JumpBuffer = Tuning.JumpBufferTime;
+
+            // Pressing jump again in the air starts a flutter.
+            if (!p.OnGround && p.TimeSinceGrounded > Tuning.CoyoteTime)
+                p.FlutterArmed = true;
+        }
+        else
+        {
+            p.JumpBuffer = Math.Max(0, p.JumpBuffer - dt);
+        }
 
         if (p.JumpBuffer > 0 && p.TimeSinceGrounded <= Tuning.CoyoteTime && !p.IsJumping)
             StartJump();
@@ -196,7 +207,23 @@ public sealed class GameWorld
         }
 
         var gravity = p.VelocityY > 0 ? Tuning.Gravity * Tuning.FallGravityMultiplier : Tuning.Gravity;
-        p.VelocityY = Math.Min(p.VelocityY + gravity * dt, Tuning.MaxFallSpeed);
+        var fluttering = p.FlutterArmed && !p.OnGround && p.VelocityY >= 0
+                         && input.IsDown(GameAction.Jump) && p.FlutterTime < Tuning.FlutterDuration;
+        if (fluttering && !p.IsFluttering)
+            _events.Add(GameEvent.Flutter);
+        p.IsFluttering = fluttering;
+
+        if (fluttering)
+        {
+            p.FlutterTime += dt;
+            p.VelocityY = Math.Min(p.VelocityY + gravity * Tuning.FlutterGravityMultiplier * dt, Tuning.FlutterFallSpeed);
+            if (_random.NextDouble() < dt * 6)
+                SpawnFeather();
+        }
+        else
+        {
+            p.VelocityY = Math.Min(p.VelocityY + gravity * dt, Tuning.MaxFallSpeed);
+        }
 
         MoveHorizontally(p.VelocityX * dt);
         MoveVertically(p.VelocityY * dt);
@@ -204,7 +231,16 @@ public sealed class GameWorld
         if (p.VelocityY >= 0)
             p.IsJumping = false;
 
-        p.SetAnimation(!p.OnGround ? PlayerAnimation.Jump
+        if (p.OnGround)
+        {
+            p.FlutterTime = 0;
+            p.FlutterArmed = false;
+            p.IsFluttering = false;
+        }
+
+        p.SetAnimation(p.ThrowTime > 0 ? PlayerAnimation.Throw
+            : p.IsFluttering ? PlayerAnimation.Flutter
+            : !p.OnGround ? PlayerAnimation.Jump
             : Math.Abs(p.VelocityX) > 20 ? PlayerAnimation.Walk
             : PlayerAnimation.Idle);
     }
@@ -319,21 +355,7 @@ public sealed class GameWorld
             }
 
             p.IsJumping = false;
-
-            if (box.CoinsLeft > 0)
-            {
-                box.CoinsLeft--;
-                Points++;
-                CoinsCollected++;
-                Effects.Add(new Effect(EffectKind.PoppedCoin, b.CenterX - Tuning.CoinSize / 2, b.Top - Tuning.CoinSize, 0.4));
-                SpawnSparks(b.CenterX, b.Top - 8, 8);
-                _events.Add(GameEvent.CoinCollected);
-            }
-            else
-            {
-                _events.Add(GameEvent.EmptyBoxHit);
-            }
-
+            ShakeBox(box);
             return; // one box per bump
         }
     }
@@ -355,31 +377,8 @@ public sealed class GameWorld
             }
         }
 
-        foreach (var enemy in Enemies)
-        {
-            if (!enemy.Alive || !bounds.Overlaps(enemy.Bounds))
-                continue;
-
-            var isStomp = p.VelocityY > 0 && bounds.Bottom <= enemy.Bounds.Top + Tuning.StompTolerance;
-            if (isStomp)
-            {
-                enemy.Alive = false;
-                var held = input.IsDown(GameAction.Jump);
-                p.VelocityY = -(held ? Tuning.StompBounceHeld : Tuning.StompBounce);
-                p.IsJumping = held;
-                p.Squash = -0.2;
-                Points += enemy.Points;
-                EnemiesDefeated++;
-                Effects.Add(new Effect(EffectKind.ScorePopup, enemy.X, enemy.Y, 0.8, enemy.Points.ToString()));
-                SpawnDust(enemy.Bounds.CenterX, enemy.Bounds.CenterY, 12, 260);
-                _events.Add(GameEvent.EnemyStomped);
-            }
-            else if (p.Invulnerable <= 0)
-            {
-                Kill();
-                return;
-            }
-        }
+        if (CheckEnemyContacts(input))
+            return;
 
         if (Spikes.Any(bounds.Overlaps))
         {
@@ -427,29 +426,6 @@ public sealed class GameWorld
         }
     }
 
-    private void UpdateEnemies(double dt)
-    {
-        foreach (var enemy in Enemies)
-        {
-            if (!enemy.Alive)
-                continue;
-
-            enemy.AnimationTime += dt;
-            enemy.X += enemy.VelocityX * dt;
-
-            if (enemy.X <= enemy.MinX)
-            {
-                enemy.X = enemy.MinX;
-                enemy.VelocityX = Tuning.EnemySpeed;
-            }
-            else if (enemy.X >= enemy.MaxX)
-            {
-                enemy.X = enemy.MaxX;
-                enemy.VelocityX = -Tuning.EnemySpeed;
-            }
-        }
-    }
-
     private void UpdateEffects(double dt)
     {
         foreach (var effect in Effects)
@@ -466,6 +442,7 @@ public sealed class GameWorld
             particle.VelocityY += particle.Gravity * dt;
             particle.X += particle.VelocityX * dt;
             particle.Y += particle.VelocityY * dt;
+            particle.Rotation += particle.Spin * dt;
         }
 
         Particles.RemoveAll(p => p.Age >= p.Life);

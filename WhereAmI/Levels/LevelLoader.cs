@@ -68,7 +68,7 @@ public static class LevelLoader
                     break;
                 case "Enemy":
                     level.Enemies.Add((ReadEnemyKind(path, e), Number(path, e, "x"), Number(path, e, "y"),
-                        Number(path, e, "range")));
+                        e.Attribute("range") is null ? 0 : Number(path, e, "range")));
                     break;
                 case "MovingPlatform":
                     level.MovingPlatforms.Add((ReadBox(path, e), Number(path, e, "toX"), Number(path, e, "toY"),
@@ -99,6 +99,10 @@ public static class LevelLoader
         {
             "ghost" => EnemyKind.Ghost,
             "scribble" => EnemyKind.Scribble,
+            "moth" => EnemyKind.Moth,
+            "owl" => EnemyKind.Owl,
+            "burr" => EnemyKind.Burr,
+            "toad" => EnemyKind.Toad,
             var other => throw Error(path, e, $"Unknown enemy kind '{other}'."),
         };
 

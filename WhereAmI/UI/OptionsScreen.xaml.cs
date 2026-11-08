@@ -29,6 +29,8 @@ public partial class OptionsScreen : Screen
         {
             new ControlRow("Walk", "←", "→", "A", "D"),
             new ControlRow("Jump (hold to go higher)", "↑", "W", "Space"),
+            new ControlRow("Flutter (jump again in the air)", "↑", "W", "Space"),
+            new ControlRow("Throw an egg", "X", "J", "Ctrl"),
             new ControlRow("Pause", "Esc"),
             new ControlRow("Music on/off", "M"),
             new ControlRow("Fullscreen", "F11", "Alt+Enter"),

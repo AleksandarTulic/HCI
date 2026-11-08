@@ -44,6 +44,8 @@ public partial class Hud : UserControl
         _time += dt;
         var world = session.World;
 
+        UpdateEggs(world.Player);
+
         if (session.Lives != _lives)
         {
             _lives = session.Lives;
@@ -104,6 +106,24 @@ public partial class Hud : UserControl
         var fadeIn = Math.Clamp(_toastAge / 0.3, 0, 1);
         var fadeOut = Math.Clamp((_toastDuration - _toastAge) / 0.6, 0, 1);
         Toast.Opacity = Math.Min(fadeIn, fadeOut);
+    }
+
+    private void UpdateEggs(Player player)
+    {
+        if (EggIcons.Children.Count == 0)
+        {
+            var egg = SpriteCache.Get("sprites/projectiles/egg.png");
+            for (var i = 0; i < Tuning.MaxEggs; i++)
+                EggIcons.Children.Add(new Image { Source = egg, Width = 18, Height = 23, Margin = new Thickness(2, 0, 2, 0) });
+        }
+
+        for (var i = 0; i < EggIcons.Children.Count; i++)
+        {
+            var opacity = i < player.Eggs ? 1
+                : i == player.Eggs ? 0.2 + 0.45 * player.EggRecharge / Tuning.EggRecharge
+                : 0.2;
+            EggIcons.Children[i].Opacity = opacity;
+        }
     }
 
     private static void SetScale(ScaleTransform transform, double scale)

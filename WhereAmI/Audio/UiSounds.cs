@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Media;
 
 namespace WhereAmI.Audio;
@@ -74,34 +73,8 @@ public sealed class UiSounds
             }
         }
 
-        var player = new SoundPlayer(ToWav(samples));
+        var player = new SoundPlayer(Synth.ToWav(samples));
         player.Load();
         return player;
-    }
-
-    private static MemoryStream ToWav(System.Collections.Generic.List<short> samples)
-    {
-        var stream = new MemoryStream();
-        using (var w = new BinaryWriter(stream, System.Text.Encoding.ASCII, leaveOpen: true))
-        {
-            var dataBytes = samples.Count * 2;
-            w.Write("RIFF"u8.ToArray());
-            w.Write(36 + dataBytes);
-            w.Write("WAVEfmt "u8.ToArray());
-            w.Write(16);                 // fmt chunk size
-            w.Write((short)1);           // PCM
-            w.Write((short)1);           // mono
-            w.Write(SampleRate);
-            w.Write(SampleRate * 2);     // bytes per second
-            w.Write((short)2);           // block align
-            w.Write((short)16);          // bits per sample
-            w.Write("data"u8.ToArray());
-            w.Write(dataBytes);
-            foreach (var s in samples)
-                w.Write(s);
-        }
-
-        stream.Position = 0;
-        return stream;
     }
 }

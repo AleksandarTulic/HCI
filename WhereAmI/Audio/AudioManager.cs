@@ -13,6 +13,14 @@ public enum Sound
     Stomp,
     Death,
     GameOver,
+
+    // Generated in code by Synth.
+    EggThrow,
+    EggCrack,
+    Ember,
+    Wind,
+    ToadLand,
+    Flutter,
 }
 
 /// <summary>Looping background music plus short sound effects that may overlap.</summary>
@@ -46,14 +54,28 @@ public sealed class AudioManager
             _music.Play();
         };
 
-        // Open every effect up front so playing one has no file-loading delay.
+        // Synthesized effects are written to a temporary folder once, then played like the others.
+        var paths = new Dictionary<Sound, string>();
         foreach (var (sound, file) in Files)
+            paths[sound] = AssetPaths.Get(file);
+        try
+        {
+            foreach (var (sound, file) in Synth.WriteGameSounds(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "WhereAmI-sounds")))
+                paths[sound] = file;
+        }
+        catch (System.IO.IOException)
+        {
+            // Without a writable temp folder the game simply has fewer sounds.
+        }
+
+        // Open every effect up front so playing one has no file-loading delay.
+        foreach (var (sound, file) in paths)
         {
             var voices = new MediaPlayer[VoicesPerSound];
             for (var i = 0; i < voices.Length; i++)
             {
                 voices[i] = new MediaPlayer();
-                voices[i].Open(new Uri(AssetPaths.Get(file)));
+                voices[i].Open(new Uri(file));
             }
 
             _voices[sound] = voices;
@@ -116,7 +138,9 @@ public sealed class AudioManager
 
     public void Play(Sound sound)
     {
-        var voices = _voices[sound];
+        if (!_voices.TryGetValue(sound, out var voices))
+            return;
+
         var index = _nextVoice[sound];
         _nextVoice[sound] = (index + 1) % voices.Length;
 

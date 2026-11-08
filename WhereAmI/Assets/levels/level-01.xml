@@ -77,13 +77,20 @@
   <Enemy kind="scribble" x="5984" y="704" range="300" />
   <Enemy kind="ghost" x="6272" y="704" range="200" />
   <Enemy kind="ghost" x="6336" y="704" range="200" />
+  <Enemy kind="toad" x="3820" y="756" range="160" />
+  <Enemy kind="moth" x="5250" y="520" range="300" />
+  <Enemy kind="burr" x="6450" y="728" range="500" />
 
   <Checkpoint x="3700" y="704" />
 
   <Hint x="0" y="0" w="300" h="1024" text="Hold ← → or A, D to walk. Press ↑, W or Space to jump." />
   <Hint x="300" y="0" w="260" h="1024" text="Land on a ghost to defeat it. Touching it from the side hurts." />
   <Hint x="560" y="0" w="300" h="1024" text="Jump into the ! boxes from below to shake out coins." />
+  <Hint x="860" y="0" w="400" h="1024" text="Press X or J to throw an egg. An egg defeats any enemy." />
   <Hint x="1260" y="0" w="260" h="1024" text="Hold the jump key longer to jump higher." />
+  <Hint x="1980" y="0" w="130" h="1024" text="Press jump again in the air and hold it to flutter." />
+  <Hint x="4960" y="0" w="200" h="1024" text="Moths spit embers. Stomp them or knock them down with an egg." />
+  <Hint x="6180" y="0" w="160" h="1024" text="Thorny burrs cannot be stomped. Use an egg." />
   <Hint x="3560" y="0" w="220" h="1024" text="Lanterns are checkpoints. After a fall you come back to the last one you lit." />
   <Hint x="3960" y="0" w="230" h="1024" text="Thorns hurt. Look before you leap." />
   <Hint x="5980" y="0" w="280" h="1024" text="Something glints in the empty air above…" />
