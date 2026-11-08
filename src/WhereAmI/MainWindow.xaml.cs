@@ -60,6 +60,9 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        var icon = AssetPaths.Get("icon.png");
+        if (File.Exists(icon))
+            Icon = System.Windows.Media.Imaging.BitmapFrame.Create(new Uri(icon));
         _loop = new GameLoop(Update, Render);
         _launch = LaunchOptions.Parse(Environment.GetCommandLineArgs()[1..]);
         _settings = _launch.NoSave ? new Settings() : SaveStore.LoadSettings();

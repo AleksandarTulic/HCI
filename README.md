@@ -1,5 +1,7 @@
 # Where Am I?
 
+![Where Am I?](docs/images/banner.png)
+
 A 2D side-scrolling platformer in a black-and-white silhouette style, written in C# with WPF.
 
 A small dark creature wakes up in a foggy, unfamiliar world. Collect coins, hit the `!` boxes,
@@ -71,7 +73,7 @@ src/WhereAmI/
   UI/          Theme, menu screens and HUD
   Assets/      Sprites, backgrounds, audio and levels
 docs/          Screenshots and the level format
-tools/         Developer scripts
+tools/         Developer scripts; tools/blender/ renders the 3D props, backgrounds and icon
 ```
 
 Levels are plain XML files, described in [docs/level-format.md](docs/level-format.md).

@@ -55,10 +55,16 @@ public sealed class GameSurface : FrameworkElement
         Scale = ActualHeight / world.Level.Height;
         CameraX = VisibleLeft(world, ActualWidth / Scale);
 
+        var level = world.Level;
+        var visibleWidth = ActualWidth / Scale;
         dc.PushTransform(new ScaleTransform(Scale, Scale));
+
+        // Sky and distant layers are drawn in view space; each layer follows the camera at its own speed.
+        ProceduralArt.DrawSky(dc, visibleWidth, level.Height);
+        DrawParallax(dc, level, visibleWidth);
+
         dc.PushTransform(new TranslateTransform(-CameraX + Camera.ShakeX, Camera.ShakeY));
 
-        var level = world.Level;
         if (level.Background is { } backgroundPath)
         {
             var background = SpriteCache.Get(backgroundPath);
@@ -66,14 +72,13 @@ public sealed class GameSurface : FrameworkElement
         }
         else
         {
-            ProceduralArt.DrawSky(dc, level);
             ProceduralArt.DrawStaticLevel(dc, level);
             foreach (var goal in world.Goals)
-                ProceduralArt.DrawGoalLight(dc, goal, world.Time);
+                DrawGoalGate(dc, goal, world.Time);
         }
 
         foreach (var checkpoint in world.Checkpoints)
-            ProceduralArt.DrawCheckpoint(dc, checkpoint, world.Time);
+            DrawCheckpoint(dc, checkpoint, world.Time);
         foreach (var platform in world.Platforms)
             ProceduralArt.DrawPlatform(dc, platform);
 
@@ -172,8 +177,43 @@ public sealed class GameSurface : FrameworkElement
 
             // Spin frames have different widths; keep them centred on the coin.
             var b = coin.Bounds;
-            dc.DrawImage(frame, new Rect(b.CenterX - frame.PixelWidth / 2.0, b.Y, frame.PixelWidth, frame.PixelHeight));
+            dc.DrawImage(frame, new Rect(b.X, b.Y, b.Width, b.Height));
         }
+    }
+
+    /// <summary>Repeats each parallax layer across the view, scrolled by a fraction of the camera position.</summary>
+    private void DrawParallax(DrawingContext dc, Levels.LevelDefinition level, double visibleWidth)
+    {
+        foreach (var (image, speed) in _sprites.Parallax)
+        {
+            double width = image.PixelWidth;
+            double height = image.PixelHeight;
+            var offset = CameraX * speed % width;
+            if (offset < 0)
+                offset += width;
+
+            for (var x = -offset; x < visibleWidth; x += width)
+                dc.DrawImage(image, new Rect(x, level.Height - height, width, height));
+        }
+    }
+
+    /// <summary>The stone gate is 80x120 around a 64x96 goal area, standing on its bottom edge.</summary>
+    private void DrawGoalGate(DrawingContext dc, Game.Box goal, double time)
+    {
+        ProceduralArt.DrawHalo(dc, new Point(goal.CenterX, goal.CenterY), goal.Width * 1.7, goal.Height * 1.2, time);
+        var scale = goal.Width / 64;
+        dc.DrawImage(_sprites.GoalGate,
+            new Rect(goal.X - 8 * scale, goal.Bottom - 120 * scale, 80 * scale, 120 * scale));
+    }
+
+    private void DrawCheckpoint(DrawingContext dc, Checkpoint checkpoint, double time)
+    {
+        var b = checkpoint.Bounds;
+        if (checkpoint.IsLit)
+            ProceduralArt.DrawHalo(dc, new Point(b.CenterX, b.Top + 22), 90, 90, time, 0.6);
+
+        var image = checkpoint.IsLit ? _sprites.CheckpointLit : _sprites.CheckpointUnlit;
+        dc.DrawImage(image, new Rect(b.X, b.Y, b.Width, b.Height));
     }
 
     private void DrawRewardBoxes(DrawingContext dc, GameWorld world)

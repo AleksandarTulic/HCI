@@ -19,6 +19,18 @@ public sealed class Sprites
     public BitmapSource RewardBoxFull { get; } = SpriteCache.Get("sprites/reward-box/full.png");
     public BitmapSource RewardBoxEmpty { get; } = SpriteCache.Get("sprites/reward-box/empty.png");
 
+    public BitmapSource GoalGate { get; } = SpriteCache.Get("sprites/goal-gate.png");
+    public BitmapSource CheckpointLit { get; } = SpriteCache.Get("sprites/checkpoint/lit.png");
+    public BitmapSource CheckpointUnlit { get; } = SpriteCache.Get("sprites/checkpoint/unlit.png");
+
+    /// <summary>Background layers from far to near, with how fast each one follows the camera.</summary>
+    public (BitmapSource Image, double Speed)[] Parallax { get; } =
+    {
+        (SpriteCache.Get("backgrounds/parallax/far.png"), 0.12),
+        (SpriteCache.Get("backgrounds/parallax/mid.png"), 0.28),
+        (SpriteCache.Get("backgrounds/parallax/near.png"), 0.5),
+    };
+
     public SpriteAnimation ForPlayer(PlayerAnimation animation) => animation switch
     {
         PlayerAnimation.Walk => PlayerWalk,

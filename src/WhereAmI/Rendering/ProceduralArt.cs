@@ -10,14 +10,13 @@ namespace WhereAmI.Rendering;
 
 /// <summary>
 /// Draws level pieces from their shapes, in the game's silhouette style: dark ground with grass,
-/// thorny spikes, a glowing gate, lantern checkpoints and moving platforms.
+/// thorny spikes and moving platforms, plus the warm glow around gates and lanterns.
 /// Used for levels that have no painted background, and for pieces that never were painted.
 /// </summary>
 public static class ProceduralArt
 {
     private static readonly Color Ink = Color.FromRgb(0x16, 0x16, 0x17);
     private static readonly Brush InkBrush = Freeze(new SolidColorBrush(Ink));
-    private static readonly Brush GlassBrush = Freeze(new SolidColorBrush(Color.FromRgb(0x3A, 0x3D, 0x42)));
     private static readonly Brush SkyBrush = Freeze(new LinearGradientBrush(
         new GradientStopCollection
         {
@@ -27,54 +26,24 @@ public static class ProceduralArt
         },
         new Point(0, 0), new Point(0, 1)));
     private static readonly Brush WarmGlow = Freeze(RadialGlow(0xFF, 0xB5, 0x47));
-    private static readonly Brush GateLight = Freeze(new RadialGradientBrush(
-        new GradientStopCollection
-        {
-            new(Color.FromRgb(0xFF, 0xF4, 0xD6), 0),
-            new(Color.FromRgb(0xFF, 0xC8, 0x6A), 0.55),
-            new(Color.FromRgb(0xE0, 0x86, 0x20), 1),
-        }));
-
     // The static parts of a level never change, so they are built once and reused every frame.
     private static readonly ConditionalWeakTable<LevelDefinition, Drawing> StaticCache = new();
 
-    public static void DrawSky(DrawingContext dc, LevelDefinition level) =>
-        dc.DrawRectangle(SkyBrush, null, new Rect(0, 0, level.Width, level.Height));
+    /// <summary>Foggy sky gradient behind everything, covering the visible area.</summary>
+    public static void DrawSky(DrawingContext dc, double visibleWidth, double height) =>
+        dc.DrawRectangle(SkyBrush, null, new Rect(0, 0, visibleWidth, height));
 
     /// <summary>Ground, spikes and the goal gate of a level without a painted background.</summary>
     public static void DrawStaticLevel(DrawingContext dc, LevelDefinition level) =>
         dc.DrawDrawing(StaticCache.GetValue(level, BuildStatic));
 
-    /// <summary>The light inside goal gates breathes slowly.</summary>
-    public static void DrawGoalLight(DrawingContext dc, Box goal, double time)
+    /// <summary>Warm light around a goal gate or a lit lantern, breathing slowly.</summary>
+    public static void DrawHalo(DrawingContext dc, Point center, double radiusX, double radiusY, double time, double strength = 0.55)
     {
-        var pulse = 0.75 + 0.25 * Math.Sin(time * 2.2);
-        dc.PushOpacity(0.55 * pulse);
-        dc.DrawEllipse(WarmGlow, null, new Point(goal.CenterX, goal.CenterY), goal.Width * 1.6, goal.Height * 1.1);
+        var pulse = 0.78 + 0.22 * Math.Sin(time * 2.2 + center.X * 0.01);
+        dc.PushOpacity(strength * pulse);
+        dc.DrawEllipse(WarmGlow, null, center, radiusX, radiusY);
         dc.Pop();
-        dc.DrawGeometry(GateLight, null, ArchGeometry(Inset(goal, 8)));
-    }
-
-    public static void DrawCheckpoint(DrawingContext dc, Checkpoint checkpoint, double time)
-    {
-        var b = checkpoint.Bounds;
-        var lamp = new Rect(b.CenterX - 12, b.Top, 24, 28);
-
-        if (checkpoint.IsLit)
-        {
-            var pulse = 0.8 + 0.2 * Math.Sin(time * 3 + b.X);
-            dc.PushOpacity(0.6 * pulse);
-            dc.DrawEllipse(WarmGlow, null, new Point(b.CenterX, lamp.Top + 14), 90, 90);
-            dc.Pop();
-        }
-
-        // Post, little roof, glass.
-        dc.DrawRectangle(InkBrush, null, new Rect(b.CenterX - 3, lamp.Bottom, 6, b.Bottom - lamp.Bottom));
-        dc.DrawRectangle(InkBrush, null, new Rect(b.CenterX - 14, b.Bottom - 6, 28, 6));
-        dc.DrawRoundedRectangle(InkBrush, null, new Rect(lamp.X - 3, lamp.Y - 3, lamp.Width + 6, lamp.Height + 6), 5, 5);
-        dc.DrawRoundedRectangle(checkpoint.IsLit ? GateLight : GlassBrush, null, Inset(lamp, 3), 3, 3);
-        dc.DrawGeometry(InkBrush, null, Geometry.Parse(
-            $"M {lamp.Left - 6},{lamp.Top - 2} L {b.CenterX},{lamp.Top - 12} L {lamp.Right + 6},{lamp.Top - 2} Z"));
     }
 
     public static void DrawPlatform(DrawingContext dc, MovingPlatform platform)
@@ -101,12 +70,6 @@ public static class ProceduralArt
 
             foreach (var spikes in level.Spikes)
                 dc.DrawGeometry(InkBrush, null, SpikeGeometry(spikes));
-
-            foreach (var goal in level.Goals)
-            {
-                var frame = new Box(goal.X - 10, goal.Y - 10, goal.Width + 20, goal.Height + 10);
-                dc.DrawGeometry(InkBrush, null, ArchGeometry(frame));
-            }
         }
 
         group.Freeze();
@@ -170,23 +133,6 @@ public static class ProceduralArt
         return geometry;
     }
 
-    /// <summary>A doorway: straight sides and a round top.</summary>
-    private static Geometry ArchGeometry(Box box)
-    {
-        var radius = box.Width / 2;
-        var geometry = new StreamGeometry();
-        using (var ctx = geometry.Open())
-        {
-            ctx.BeginFigure(new Point(box.X, box.Bottom), true, true);
-            ctx.LineTo(new Point(box.X, box.Y + radius), true, false);
-            ctx.ArcTo(new Point(box.Right, box.Y + radius), new Size(radius, radius), 0, false, SweepDirection.Clockwise, true, false);
-            ctx.LineTo(new Point(box.Right, box.Bottom), true, false);
-        }
-
-        geometry.Freeze();
-        return geometry;
-    }
-
     private static void AddTriangle(StreamGeometryContext ctx, Point a, Point b, Point c)
     {
         ctx.BeginFigure(a, true, true);
@@ -199,10 +145,6 @@ public static class ProceduralArt
         ctx.BeginFigure(r.TopLeft, true, true);
         ctx.PolyLineTo(new List<Point> { r.TopRight, r.BottomRight, r.BottomLeft }, true, false);
     }
-
-    private static Box Inset(Box b, double by) => new(b.X + by, b.Y + by, b.Width - 2 * by, b.Height - by);
-
-    private static Rect Inset(Rect r, double by) => new(r.X + by, r.Y + by, r.Width - 2 * by, r.Height - 2 * by);
 
     private static RadialGradientBrush RadialGlow(byte r, byte g, byte b) => new(
         new GradientStopCollection
