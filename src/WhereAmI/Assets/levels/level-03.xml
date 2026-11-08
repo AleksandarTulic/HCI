@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- No painted background: the level is drawn from its shapes. -->
+<Level name="Lantern Marsh" width="7000" height="1024" timeLimit="200">
+  <PlayerStart x="120" y="700" />
+
+  <Ground x="0" y="800" w="900" h="224" />
+  <Ground x="1100" y="720" w="300" h="304" />
+  <Ground x="2200" y="760" w="700" h="264" />
+  <Ground x="3000" y="640" w="150" h="384" />
+  <Ground x="3250" y="520" w="150" h="504" />
+  <Ground x="3500" y="400" w="150" h="624" />
+  <Ground x="3900" y="860" w="700" h="164" />
+  <Ground x="5300" y="700" w="300" h="324" />
+  <Ground x="5700" y="800" w="700" h="224" />
+  <Ground x="6500" y="720" w="500" h="304" />
+
+  <!-- Floating platforms: across the first marsh, down from the tall steps, and over the last pit. -->
+  <MovingPlatform x="1450" y="700" w="160" h="28" toX="2020" toY="700" speed="150" />
+  <MovingPlatform x="3750" y="420" w="128" h="28" toX="3750" toY="800" speed="130" />
+  <MovingPlatform x="4650" y="760" w="160" h="28" toX="5120" toY="760" speed="170" />
+
+  <Spikes x="2450" y="728" w="96" h="32" />
+  <Spikes x="4340" y="700" w="32" h="160" />
+  <Spikes x="5880" y="768" w="64" h="32" />
+  <Spikes x="6120" y="768" w="64" h="32" />
+
+  <RewardBox x="560" y="560" coins="3" />
+  <RewardBox x="2760" y="560" coins="4" hidden="true" />
+  <RewardBox x="4180" y="640" coins="2" />
+  <RewardBox x="4244" y="640" coins="1" />
+  <RewardBox x="5420" y="480" coins="3" hidden="true" />
+
+  <Coin x="300" y="690" />
+  <Coin x="360" y="660" />
+  <Coin x="420" y="650" />
+  <Coin x="480" y="660" />
+  <Coin x="540" y="690" />
+  <Coin x="1560" y="620" />
+  <Coin x="1720" y="600" />
+  <Coin x="1880" y="620" />
+  <Coin x="2260" y="690" />
+  <Coin x="2330" y="690" />
+  <Coin x="3060" y="580" />
+  <Coin x="3310" y="460" />
+  <Coin x="3560" y="340" />
+  <Coin x="3790" y="640" />
+  <Coin x="4760" y="680" />
+  <Coin x="4920" y="660" />
+  <Coin x="5080" y="680" />
+  <Coin x="5450" y="620" />
+  <Coin x="5910" y="700" />
+  <Coin x="6150" y="700" />
+  <Coin x="6600" y="640" />
+  <Coin x="6680" y="640" />
+  <Coin x="6760" y="640" />
+
+  <Enemy kind="ghost" x="1200" y="656" range="160" />
+  <Enemy kind="scribble" x="2700" y="696" range="240" />
+  <Enemy kind="ghost" x="4150" y="796" range="200" />
+  <Enemy kind="ghost" x="4480" y="796" range="160" />
+  <Enemy kind="scribble" x="6002" y="736" range="120" />
+  <Enemy kind="ghost" x="6640" y="656" range="140" />
+
+  <Checkpoint x="4000" y="764" />
+  <Checkpoint x="5760" y="704" />
+
+  <Hint x="1150" y="0" w="300" h="1024" text="Ride the floating platforms across the marsh." />
+  <Hint x="3480" y="0" w="200" h="1024" text="Some platforms sink and rise. Wait for the right moment." />
+
+  <Goal x="6880" y="624" w="64" h="96" />
+</Level>

@@ -1,0 +1,29 @@
+<ui:Screen x:Class="WhereAmI.UI.VictoryScreen"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:ui="clr-namespace:WhereAmI.UI">
+  <Grid>
+    <Rectangle>
+      <Rectangle.Fill>
+        <RadialGradientBrush RadiusX="0.9" RadiusY="0.9">
+          <GradientStop Color="#B3241A0A" Offset="0" />
+          <GradientStop Color="#F20E1116" Offset="1" />
+        </RadialGradientBrush>
+      </Rectangle.Fill>
+    </Rectangle>
+
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+      <TextBlock Text="You found your way" Style="{StaticResource LogoText}" FontSize="110" HorizontalAlignment="Center" />
+      <TextBlock Text="The fog lifts, and for the first time you know exactly where you are."
+                 Style="{StaticResource SubheadingText}" HorizontalAlignment="Center" Margin="0,0,0,36" />
+      <TextBlock Text="FINAL SCORE" Style="{StaticResource LabelText}" HorizontalAlignment="Center" />
+      <TextBlock x:Name="ScoreText" Style="{StaticResource NumberText}" FontSize="64" Foreground="{StaticResource AmberSoftBrush}"
+                 HorizontalAlignment="Center" Margin="0,0,0,44" Effect="{StaticResource AmberGlow}" />
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="14,0,0,0">
+        <Button x:Name="LevelsButton" Style="{StaticResource PrimaryButton}" Content="Levels" Click="Levels_Click" />
+        <Button Style="{StaticResource SecondaryButton}" Content="Main menu" Click="Menu_Click" Tag="back" />
+      </StackPanel>
+      <TextBlock Text="Thank you for playing." Style="{StaticResource HintText}" HorizontalAlignment="Center" Margin="0,48,0,0" />
+    </StackPanel>
+  </Grid>
+</ui:Screen>

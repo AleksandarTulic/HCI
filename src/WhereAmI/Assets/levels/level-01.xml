@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Level name="Foggy Meadow" width="7040" height="1024" background="backgrounds/level-01.png" timeLimit="180">
+  <PlayerStart x="100" y="100" />
+
+  <Ground x="0" y="458" w="320" h="54" />
+  <Ground x="0" y="800" w="1376" h="224" />
+  <Ground x="800" y="544" w="150" h="64" />
+  <Ground x="1024" y="544" w="32" h="64" />
+  <Ground x="1248" y="352" w="64" h="64" />
+  <Ground x="1504" y="640" w="192" h="64" />
+  <Ground x="1536" y="704" w="128" h="64" />
+  <Ground x="1568" y="768" w="64" h="256" />
+  <Ground x="1792" y="640" w="192" h="64" />
+  <Ground x="1824" y="704" w="128" h="64" />
+  <Ground x="1856" y="768" w="64" h="256" />
+  <Ground x="2112" y="768" w="128" h="64" />
+  <Ground x="2144" y="416" w="64" h="64" />
+  <Ground x="2144" y="832" w="64" h="64" />
+  <Ground x="2400" y="416" w="224" h="64" />
+  <Ground x="2400" y="896" w="128" h="64" />
+  <Ground x="2432" y="960" w="64" h="64" />
+  <Ground x="2688" y="910" w="384" h="114" />
+  <Ground x="3200" y="800" w="704" h="224" />
+  <Ground x="3392" y="544" w="96" h="64" />
+  <Ground x="3552" y="544" w="96" h="64" />
+  <Ground x="4032" y="640" w="448" h="384" />
+  <Ground x="4192" y="480" w="64" h="32" />
+  <Ground x="4448" y="480" w="64" h="32" />
+  <Ground x="4480" y="640" w="352" h="160" />
+  <Ground x="4480" y="960" w="352" h="64" />
+  <Ground x="4896" y="928" w="64" h="64" />
+  <Ground x="5120" y="832" w="64" h="64" />
+  <Ground x="5344" y="736" w="64" h="64" />
+  <Ground x="5568" y="640" w="64" h="64" />
+  <Ground x="5728" y="768" w="1216" h="64" />
+  <Ground x="5760" y="832" w="1152" h="64" />
+  <Ground x="6688" y="554" w="224" h="54" />
+
+  <Spikes x="4192" y="512" w="64" h="128" />
+  <Spikes x="4448" y="512" w="64" h="128" />
+  <Spikes x="4480" y="800" w="352" h="32" />
+
+  <RewardBox x="608" y="544" coins="1" />
+  <RewardBox x="960" y="544" coins="2" />
+  <RewardBox x="3488" y="544" coins="2" />
+  <RewardBox x="6099" y="480" coins="3" hidden="true" />
+  <RewardBox x="6195" y="480" coins="2" hidden="true" />
+
+  <Coin x="851" y="448" />
+  <Coin x="915" y="448" />
+  <Coin x="979" y="448" />
+  <Coin x="1267" y="256" />
+  <Coin x="1555" y="512" />
+  <Coin x="1619" y="512" />
+  <Coin x="1843" y="512" />
+  <Coin x="1907" y="512" />
+  <Coin x="2163" y="672" />
+  <Coin x="2451" y="800" />
+  <Coin x="2483" y="160" />
+  <Coin x="2483" y="224" />
+  <Coin x="2483" y="288" />
+  <Coin x="3091" y="736" />
+  <Coin x="3315" y="672" />
+  <Coin x="3475" y="672" />
+  <Coin x="3667" y="672" />
+  <Coin x="4211" y="384" />
+  <Coin x="4467" y="384" />
+  <Coin x="4531" y="864" />
+  <Coin x="4627" y="864" />
+
+  <Enemy kind="ghost" x="320" y="736" range="500" />
+  <Enemy kind="ghost" x="2464" y="352" range="120" />
+  <Enemy kind="scribble" x="3488" y="448" range="200" />
+  <Enemy kind="ghost" x="3456" y="736" range="300" />
+  <Enemy kind="ghost" x="3520" y="736" range="300" />
+  <Enemy kind="ghost" x="4640" y="576" range="200" />
+  <Enemy kind="scribble" x="5984" y="704" range="300" />
+  <Enemy kind="ghost" x="6272" y="704" range="200" />
+  <Enemy kind="ghost" x="6336" y="704" range="200" />
+
+  <Checkpoint x="3700" y="704" />
+
+  <Hint x="0" y="0" w="300" h="1024" text="Hold ← → or A, D to walk. Press ↑, W or Space to jump." />
+  <Hint x="300" y="0" w="260" h="1024" text="Land on a ghost to defeat it. Touching it from the side hurts." />
+  <Hint x="560" y="0" w="300" h="1024" text="Jump into the ! boxes from below to shake out coins." />
+  <Hint x="1260" y="0" w="260" h="1024" text="Hold the jump key longer to jump higher." />
+  <Hint x="3560" y="0" w="220" h="1024" text="Lanterns are checkpoints. After a fall you come back to the last one you lit." />
+  <Hint x="3960" y="0" w="230" h="1024" text="Thorns hurt. Look before you leap." />
+  <Hint x="5980" y="0" w="280" h="1024" text="Something glints in the empty air above…" />
+
+  <Goal x="6848" y="480" w="64" h="64" />
+</Level>

@@ -1,0 +1,20 @@
+﻿<Window x:Class="WhereAmI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:rendering="clr-namespace:WhereAmI.Rendering"
+        xmlns:ui="clr-namespace:WhereAmI.UI"
+        Title="Where Am I?"
+        Width="1280" Height="800"
+        MinWidth="480" MinHeight="320"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource InkBrush}">
+
+  <!-- Layers, from back to front: the level, fireflies, HUD, menu screens, and a fade used between screens. -->
+  <Grid x:Name="Root">
+    <rendering:GameSurface x:Name="Surface" />
+    <ui:FireflyLayer x:Name="Fireflies" />
+    <ui:Hud x:Name="Hud" Visibility="Collapsed" />
+    <ContentControl x:Name="ScreenHost" Focusable="False" />
+    <Rectangle x:Name="Fade" Fill="{StaticResource InkBrush}" Opacity="0" IsHitTestVisible="False" />
+  </Grid>
+</Window>

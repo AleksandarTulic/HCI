@@ -1,0 +1,29 @@
+<ui:Screen x:Class="WhereAmI.UI.GameOverScreen"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:ui="clr-namespace:WhereAmI.UI">
+  <Grid>
+    <!-- Darkness closes in around the spot where the player fell. Animated in code. -->
+    <Rectangle x:Name="Darkness">
+      <Rectangle.Fill>
+        <RadialGradientBrush x:Name="Vignette" RadiusX="1.6" RadiusY="1.6" Center="0.5,0.5" GradientOrigin="0.5,0.5">
+          <GradientStop Color="#000E1116" Offset="0" />
+          <GradientStop Color="#990E1116" Offset="0.55" />
+          <GradientStop Color="#FA0E1116" Offset="1" />
+        </RadialGradientBrush>
+      </Rectangle.Fill>
+    </Rectangle>
+
+    <StackPanel x:Name="Body" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0">
+      <TextBlock Text="The light went out" Style="{StaticResource HeadingText}" FontSize="72" HorizontalAlignment="Center" />
+      <TextBlock x:Name="Subtitle" Style="{StaticResource SubheadingText}" HorizontalAlignment="Center" Margin="0,8,0,0" />
+      <TextBlock x:Name="ScoreText" Style="{StaticResource NumberText}" FontSize="40" Foreground="{StaticResource AmberSoftBrush}"
+                 HorizontalAlignment="Center" Margin="0,26,0,40" />
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="14,0,0,0">
+        <Button x:Name="RetryButton" Style="{StaticResource PrimaryButton}" Content="Try again" Click="Retry_Click" />
+        <Button Style="{StaticResource SecondaryButton}" Content="Levels" Click="Levels_Click" />
+        <Button Style="{StaticResource SecondaryButton}" Content="Main menu" Click="Menu_Click" Tag="back" />
+      </StackPanel>
+    </StackPanel>
+  </Grid>
+</ui:Screen>
